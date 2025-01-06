@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QLineEdit,QGraphicsProxyWidget
 from PySide6.QtGui import QRegularExpressionValidator
 from PySide6.QtCore import QRegularExpression,QPointF
 
-class Box(QLineEdit):
+class LineEditBox(QLineEdit):
     def __init__(self, socket, box_type):
         super().__init__()
         self.socket = socket

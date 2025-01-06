@@ -2,7 +2,7 @@
 from PySide6.QtWidgets import QGraphicsItem
 from PySide6.QtCore import QRectF, Qt, Signal
 from PySide6.QtGui import QBrush, QPen, QColor
-from boxes import Box
+from boxes import LineEditBox
 
 class Socket(QGraphicsItem):
     
@@ -47,17 +47,15 @@ class Socket(QGraphicsItem):
         self._value = new_value
         if self.box is not None:
             self.box.update_display()
-        # 如果没有连接且graph存在，执行graph
-        if not self.has_edge() and self.graph is not None:
-            self.graph.execute()
         
         
 
     def initBox(self):
         if self.box_type == 0:
             return
-        self.box = Box(socket=self, box_type=self.box_type)
-        self.box.update_display()
+        else:
+            self.box = LineEditBox(self, self.box_type)
+            self.box.update_display()
 
     def boundingRect(self):
         return QRectF(

@@ -29,7 +29,6 @@ class Node(QGraphicsItem):
         self.height = self.title_height + self.sockets_height - 2*self.socket_radius
         self.width = 90
         self.edge_size = 3
-
         self.pen_default = QPen(QColor("#50B780"))
         self.pen_selected = QPen(QColor("#F2E383"))
         self.brush_title = QBrush(QColor("#1F7D6B"))
@@ -129,11 +128,9 @@ class Node(QGraphicsItem):
         return [x,y]
 
     def remove(self):
-        # 删除所有连接的edges
         for socket in self.input_sockets + self.output_sockets:
             for edge in socket.edges:
                 edge.remove()
-        # 从场景中移除节点
         if self.scene():
             self.scene().removeItem(self)
 
