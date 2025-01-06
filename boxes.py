@@ -22,7 +22,7 @@ class LineEditBox(QLineEdit):
         self.setFixedHeight(int(self.socket.node.socket_height * 0.9))
         self.setStyleSheet("border:none;background-color: rgba(70, 70, 70, 0.4);color:white;")
 
-        self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^-?\d*\.?\d*$')))
+        self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^-?\d*\.?\d*(?:[eE][-+]?\d+)?$')))
 
     def update_display(self):
         """更新显示内容"""
