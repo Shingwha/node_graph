@@ -26,8 +26,8 @@ class Socket(QGraphicsItem):
             QColor("#F3FF96"),
             QColor("#F7CBCB"),
         ]
-        self.background_color = self.background_colors[0]
-        self.outline_color = QColor("#39FA6A")
+        self.background_color = self.background_colors[self.datatype]
+        self.outline_color = self.background_color.darker(130)
         self.outline_width = 1.0
         self.pen = QPen(self.outline_color, self.outline_width)
         self.brush_background = QBrush(self.background_color)

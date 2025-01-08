@@ -1,6 +1,6 @@
 from node import Node
 
-class OutputNumberNode(Node):
+class NumberOutputNode(Node):
     def __init__(self):
         super().__init__(
             title="Output",

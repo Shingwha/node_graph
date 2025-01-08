@@ -1,6 +1,6 @@
 from box import Box
-from PySide6.QtWidgets import QLineEdit,QGraphicsProxyWidget
-from PySide6.QtGui import QRegularExpressionValidator
+from PySide6.QtWidgets import QLineEdit, QGraphicsProxyWidget, QWidget,QLabel
+from PySide6.QtGui import QRegularExpressionValidator, QPixmap
 from PySide6.QtCore import QRegularExpression,QPointF
 
 class LineEditBox(Box, QLineEdit):
@@ -25,14 +25,21 @@ class LineEditBox(Box, QLineEdit):
             return None
 
 # 添加一个图片组件
-class ImageBox(Box):
+class ImageBox(Box, QLabel):
     def __init__(self, socket):
-        super().__init__(socket=socket, height = self.width)
-        self.setFlag(QGraphicsItem.ItemIsMovable, False)
-        self.setFlag(QGraphicsItem.ItemIsSelectable, True)
+        super().__init__(socket=socket, height=100) 
+        self.image = None
+        self.update_display()
+
 
     def update_display(self):
-        pass
+        self.image = QPixmap("dog.jpg")  # 加载图片
+        self.setPixmap(self.image)  # 设置图片
+        self.setFixedWidth(self.width)
+        self.setScaledContents(True)
+        # 按照图片的高宽比来重新更新self.height
+        self.height = self.width * self.image.height() / self.image.width()
+        self.setFixedHeight(self.height)
 
     def get_value(self):
         return None

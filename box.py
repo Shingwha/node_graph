@@ -22,4 +22,4 @@ class Box():
         self.setStyleSheet("border: none; background-color: rgba(70, 70, 70, 0.4); color: white;")
 
     def setPos(self, x, y): # 使用中心点的坐标和宽度高度来设置位置
-        self.proxy.setPos(x - self.width / 2, y - self.height/2)
+        self.proxy.setPos(x - self.width / 2, y - self.socket.node.width * 0.06)

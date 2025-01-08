@@ -27,7 +27,7 @@ class Node(QGraphicsItem):
         self.socket_radius = 4
         self.sockets_height = (max(len(input_sockets), len(output_sockets)) + 1) * self.socket_height
         self.height = self.title_height + self.sockets_height - 2*self.socket_radius
-        self.width = 90
+        self.width = 120
         self.edge_size = 3
         self.pen_default = QPen(QColor("#50B780"))
         self.pen_selected = QPen(QColor("#F2E383"))
@@ -137,3 +137,6 @@ class Node(QGraphicsItem):
     def reset(self):
         for socket in self.input_sockets + self.output_sockets:
             socket.reset()
+
+    def update_display(self):
+        pass
