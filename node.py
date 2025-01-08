@@ -22,13 +22,15 @@ class Node(QGraphicsItem):
         self.title_height = 20
         self.title_color = Qt.white
         self.title_font = QFont("Helvetica", 8)
+        self.inputs_height = 0
+        self.outputs_height = 0
+        self.content_height = 0
         self.padding = 5
-        self.socket_height = 18
-        self.socket_radius = 4
-        self.sockets_height = (max(len(input_sockets), len(output_sockets)) + 1) * self.socket_height
-        self.height = self.title_height + self.sockets_height - 2*self.socket_radius
+        self._height = self.title_height + self.content_height
         self.width = 120
         self.edge_size = 3
+
+    
         self.pen_default = QPen(QColor("#50B780"))
         self.pen_selected = QPen(QColor("#F2E383"))
         self.brush_title = QBrush(QColor("#1F7D6B"))
@@ -38,12 +40,23 @@ class Node(QGraphicsItem):
 
         self.title = title
         self.type = type
-        self.initTitle()
-        self.initUI()
+
         self.input_sockets = []
         self.output_sockets = []
         self.initSockets(input_sockets, output_sockets)
-        
+        self.update_display()
+        self.height = self.title_height + self.content_height
+        self.initTitle()
+        self.initUI()
+
+    @property
+    def height(self):
+        return self.title_height + self.content_height
+
+    @height.setter
+    def height(self, value):
+        self._height = value
+
     def initUI(self):
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
@@ -58,15 +71,6 @@ class Node(QGraphicsItem):
         self.title_item.setPlainText(self.title)
 
     def initSockets(self, inputs, outputs):
-        self.input_sockets = [
-            Socket(
-                node=self, 
-                index=i, 
-                type=INPUT, 
-                datatype=socket_config.get("datatype", 0), 
-                box_type=socket_config.get("box_type", 0),
-            ) for i, socket_config in enumerate(inputs)
-        ]
         self.output_sockets = [
             Socket(
                 node=self, 
@@ -76,6 +80,16 @@ class Node(QGraphicsItem):
                 box_type=socket_config.get("box_type", 0),
             ) for i, socket_config in enumerate(outputs)
         ]
+        self.input_sockets = [
+            Socket(
+                node=self, 
+                index=i, 
+                type=INPUT, 
+                datatype=socket_config.get("datatype", 0), 
+                box_type=socket_config.get("box_type", 0),
+            ) for i, socket_config in enumerate(inputs)
+        ]
+        
 
     def boundingRect(self):
         return QRectF(
@@ -107,9 +121,9 @@ class Node(QGraphicsItem):
         painter.setOpacity(self.opacity)
         path_content = QPainterPath()
         path_content.setFillRule(Qt.WindingFill)
-        path_content.addRoundedRect(0,self.title_height,self.width,self.height - self.title_height,self.edge_size,self.edge_size)
-        path_content.addRect(0,self.title_height,self.edge_size,self.edge_size)
-        path_content.addRect(self.width - self.edge_size,self.title_height,self.edge_size,self.edge_size)
+        path_content.addRoundedRect(0, self.title_height, self.width, self.content_height, self.edge_size, self.edge_size)
+        path_content.addRect(0, self.title_height, self.edge_size, self.edge_size)
+        path_content.addRect(self.width - self.edge_size, self.title_height, self.edge_size, self.edge_size)
         painter.setPen(Qt.NoPen)
         painter.setBrush(self.brush_background)
         painter.drawPath(path_content.simplified())
@@ -122,10 +136,7 @@ class Node(QGraphicsItem):
         painter.setBrush(Qt.NoBrush)
         painter.drawPath(path_outline.simplified())
 
-    def get_socket_position(self, index, type):
-        x = 0 if type == INPUT else self.width
-        y = self.title_height + (index+1) * self.socket_height - self.socket_radius
-        return [x,y]
+
 
     def remove(self):
         for socket in self.input_sockets + self.output_sockets:
@@ -139,4 +150,7 @@ class Node(QGraphicsItem):
             socket.reset()
 
     def update_display(self):
-        pass
+        self.prepareGeometryChange()
+        self.content_height = self.inputs_height + self.outputs_height + 0.08*self.width
+        print("node_content_height:", self.content_height)
+        print("node_height:", self.height)

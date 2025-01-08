@@ -24,9 +24,9 @@ class ImageInputNode(Node):
             output_sockets=[{"datatype": 1, "box_type": 2}],
         )
         self.height = 110
-        # 深黄色线条，标题背景浅一点
-        self.pen_default = QPen(QColor("#996633"))
-        self.brush_title = QBrush(QColor("#cc6666"))
+        # 设置线条，标题背景深一点
+        self.pen_default = QPen(QColor("#cc6666"))
+        self.brush_title = QBrush(QColor("#c36060"))
 
     def run(self):
         pass

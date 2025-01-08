@@ -1,25 +1,71 @@
-from PySide6.QtWidgets import QLineEdit, QGraphicsProxyWidget
-from PySide6.QtGui import QRegularExpressionValidator
+from PySide6.QtWidgets import QLineEdit, QGraphicsProxyWidget, QWidget,QLabel
+from PySide6.QtGui import QRegularExpressionValidator, QPixmap
 from PySide6.QtCore import QRegularExpression,QPointF
 
 class Box():
-    def __init__(self, socket, height=16):
+    def __init__(self, socket, height=20):
         super().__init__()
         self.socket = socket
         self.value = None
         self.height = height
         self.width = self.socket.node.width * 0.84
+        self.position_x = 0
+        self.position_y = 0
         self.proxy = None
-        self.initUI()
+        # self.initUI()
         
     def initUI(self):
 
         self.proxy = QGraphicsProxyWidget(self.socket.node)
         self.proxy.setWidget(self)
-        self.setPos(self.socket.node.width/2, self.socket.pos( ).y())
+        self.update_position()
         self.setFixedHeight(self.height)
         self.setFixedWidth(self.width)
         self.setStyleSheet("border: none; background-color: rgba(70, 70, 70, 0.4); color: white;")
 
-    def setPos(self, x, y): # 使用中心点的坐标和宽度高度来设置位置
-        self.proxy.setPos(x - self.width / 2, y - self.socket.node.width * 0.06)
+    def update_position(self):
+        self.position_x = self.socket.node.width * 0.08
+        self.position_y = self.socket.position_y - self.height / 2
+        self.proxy.setPos(self.position_x, self.position_y)
+
+
+class LineEditBox(Box, QLineEdit):
+    def __init__(self, socket):
+        super().__init__(socket=socket, height=20)
+        self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^-?\d*\.?\d*(?:[eE][-+]?\d+)?$')))
+
+    def update_display(self):
+        if self.socket.value is not None:
+            self.setText(f"{self.socket.value:.6g}")
+            self.setCursorPosition(0)  # 确保显示从开头开始
+        else:
+            self.clear()
+
+    def get_value(self):
+        text = self.text()
+        try:
+            if '.' in text:
+                return float(text)
+            return int(text)
+        except ValueError:
+            return None
+
+# 添加一个图片组件
+class ImageBox(Box, QLabel):
+    def __init__(self, socket):
+        super().__init__(socket=socket, height=100) 
+        self.image = None
+        self.update_display()
+
+
+    def update_display(self):
+        self.image = QPixmap("dog.jpg")  # 加载图片
+        self.setPixmap(self.image)  # 设置图片
+        self.setFixedWidth(self.width)
+        self.setScaledContents(True)
+        # 按照图片的高宽比来重新更新self.height
+        self.height = self.width * self.image.height() / self.image.width()
+        self.setFixedHeight(self.height)
+
+    def get_value(self):
+        return None

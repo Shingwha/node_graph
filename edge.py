@@ -12,7 +12,7 @@ class Edge(QGraphicsPathItem):
         if self.end_socket is not None:
             self.end_socket.edges.append(self)
         self.initEdge()
-        self.pen = QPen(QColor("#39FA6A"), 2)
+        self.pen = self.start_socket.background_color
         self.pen_selected = QPen(QColor("#F2E383"), 2)
         self.setPen(self.pen)
         self.setZValue(-1)  
