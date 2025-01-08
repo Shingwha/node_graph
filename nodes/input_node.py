@@ -21,7 +21,9 @@ class ImageInputNode(Node):
             title="Image Input",
             type=1002,
             input_sockets=[],
-            output_sockets=[{"datatype": 1, "box_type": 2}],
+            output_sockets=[
+                {"datatype": 1, "box_type": 2}
+                ],
         )
         self.height = 110
         # 设置线条，标题背景深一点

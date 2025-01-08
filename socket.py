@@ -20,7 +20,7 @@ class Socket(QGraphicsItem):
         self.box = None  # 存储当前Socket的输入框
         self.box_type = box_type  # 存储当前Socket的输入框类型
         # 初始化绘图属性
-        self.radius = 4
+        self.radius = 5
         self.background_colors = [
             QColor("#39FA6A"),
             QColor("#cc6666"),
@@ -28,7 +28,7 @@ class Socket(QGraphicsItem):
         ]
         self.background_color = self.background_colors[self.datatype]
         self.outline_color = self.background_color.darker(130)
-        self.outline_width = 1.0
+        self.outline_width = 2.0
         self.pen = QPen(self.outline_color, self.outline_width)
         self.brush_background = QBrush(self.background_color)
         self.brush_background_unconnected = QBrush(QBrush(QColor("#2a2a2a")))
