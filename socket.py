@@ -2,7 +2,7 @@
 from PySide6.QtWidgets import QGraphicsItem
 from PySide6.QtCore import QRectF, Qt, Signal
 from PySide6.QtGui import QBrush, QPen, QColor
-from boxes import LineEditBox
+from boxes import LineEditBox,ImageBox
 
 class Socket(QGraphicsItem):
     
@@ -31,7 +31,7 @@ class Socket(QGraphicsItem):
         self.outline_width = 1.0
         self.pen = QPen(self.outline_color, self.outline_width)
         self.brush_background = QBrush(self.background_color)
-        self.brush_background_unconnected = QBrush(QBrush(QColor("#dbead5")))
+        self.brush_background_unconnected = QBrush(QBrush(QColor("#2a2a2a")))
         self.initBox()
 
     @property
@@ -53,9 +53,10 @@ class Socket(QGraphicsItem):
     def initBox(self):
         if self.box_type == 0:
             return
-        else:
-            self.box = LineEditBox(self, self.box_type)
-            self.box.update_display()
+        if self.box_type == 1:
+            self.box = LineEditBox(socket=self)
+        if self.box_type == 2:
+            self.box = ImageBox(socket=self)
 
     def boundingRect(self):
         return QRectF(
