@@ -29,7 +29,7 @@ class Node(QGraphicsItem):
         self._height = self.title_height + self.content_height
         self.width = 120
         self.edge_size = 3
-
+        self.spacing = 0.05*self.width
     
         self.pen_default = QPen(QColor("#50B780"))
         self.pen_selected = QPen(QColor("#F2E383"))
@@ -151,6 +151,6 @@ class Node(QGraphicsItem):
 
     def update_display(self):
         self.prepareGeometryChange()
-        self.content_height = self.inputs_height + self.outputs_height + 0.08*self.width
+        self.content_height = self.inputs_height + self.outputs_height + self.spacing
         print("node_content_height:", self.content_height)
         print("node_height:", self.height)

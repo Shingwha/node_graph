@@ -15,6 +15,7 @@ class Socket(QGraphicsItem):
         self.datatype = datatype
         self.position_x = 0  if self.type == 0 else self.node.width
         self.position_y = 0
+        self.basic_height = 20  # 基础高度
         self.edges = []  # 存储多个Edge
         self._value = None  # 存储当前Socket的值
         self.box = None  # 存储当前Socket的输入框
@@ -82,12 +83,12 @@ class Socket(QGraphicsItem):
     def update_position(self):
         self.position_x = 0 if self.type == 0 else self.node.width
         if self.type == 1:
-            self.node.outputs_height += self.node.width * 0.08 + self.box.height  if self.box is not None else self.node.width * 0.08 + 20
-            self.position_y = self.node.outputs_height - self.box.height/2 if self.box is not None else self.node.outputs_height - 10
+            self.node.outputs_height += self.node.spacing + self.box.height  if self.box is not None else self.node.spacing + self.basic_height
+            self.position_y = self.node.outputs_height - self.box.height/2 if self.box is not None else self.node.outputs_height - self.basic_height/2
             self.position_y = self.position_y + self.node.title_height
         else:
-            self.node.inputs_height += self.node.width * 0.08 + self.box.height  if self.box is not None else self.node.width * 0.08 + 20
-            self.position_y = self.node.inputs_height - self.box.height/2 if self.box is not None else self.node.inputs_height - 10
+            self.node.inputs_height += self.node.spacing + self.box.height  if self.box is not None else self.node.spacing + self.basic_height
+            self.position_y = self.node.inputs_height - self.box.height/2 if self.box is not None else self.node.inputs_height - self.basic_height/2
             self.position_y = self.position_y + self.node.outputs_height + self.node.title_height
         self.setPos(self.position_x, self.position_y)
         print("socket position", self.position_x, self.position_y)

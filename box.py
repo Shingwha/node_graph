@@ -3,12 +3,12 @@ from PySide6.QtGui import QRegularExpressionValidator, QPixmap
 from PySide6.QtCore import QRegularExpression,QPointF
 
 class Box():
-    def __init__(self, socket, height=20):
+    def __init__(self, socket):
         super().__init__()
         self.socket = socket
         self.value = None
-        self.height = height
-        self.width = self.socket.node.width * 0.84
+        self.height = self.socket.basic_height
+        self.width = self.socket.node.width - self.socket.node.spacing * 2
         self.position_x = 0
         self.position_y = 0
         self.proxy = None
@@ -24,14 +24,14 @@ class Box():
         self.setStyleSheet("border: none; background-color: rgba(70, 70, 70, 0.4); color: white;")
 
     def update_position(self):
-        self.position_x = self.socket.node.width * 0.08
+        self.position_x = self.socket.node.spacing
         self.position_y = self.socket.position_y - self.height / 2
         self.proxy.setPos(self.position_x, self.position_y)
 
 
 class LineEditBox(Box, QLineEdit):
     def __init__(self, socket):
-        super().__init__(socket=socket, height=20)
+        super().__init__(socket=socket)
         self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^-?\d*\.?\d*(?:[eE][-+]?\d+)?$')))
 
     def update_display(self):
@@ -53,7 +53,8 @@ class LineEditBox(Box, QLineEdit):
 # 添加一个图片组件
 class ImageBox(Box, QLabel):
     def __init__(self, socket):
-        super().__init__(socket=socket, height=100) 
+        super().__init__(socket=socket) 
+        self.height = self.socket.basic_height *5 
         self.image = None
         self.update_display()
 
