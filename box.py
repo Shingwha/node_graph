@@ -57,19 +57,20 @@ class ImageBox(Box, QLabel):
         self.height = self.socket.basic_height * 5
         # 加载默认图片
         self.value = "dog.jpg" if self.socket.type == 1 else "cat.jpg"
-        self.pixmap = QPixmap(self.value) if self.value is not None else None
+        self.pixmap = QPixmap(self.value)
         self.update_display()
 
     def update_display(self):
-        if self.value is not None and not self.pixmap.isNull():
-            self.setPixmap(self.pixmap)
-            self.setFixedWidth(self.width)
-            self.setScaledContents(True)
-            # 按照图片的高宽比来重新更新self.height
-            self.height = self.width * self.pixmap.height() / self.pixmap.width()
-            self.setFixedHeight(self.height)
+        if self.socket.value is not None:
+            self.pixmap = QPixmap(self.socket.value)
         else:
-            self.clear()
+            self.pixmap = QPixmap(self.value)
+        self.setPixmap(self.pixmap)
+        self.setFixedWidth(self.width)
+        self.setScaledContents(True)
+        # 按照图片的高宽比来重新更新self.height
+        self.height = self.width * self.pixmap.height() / self.pixmap.width()
+        self.setFixedHeight(self.height)
 
     def get_value(self):
         return self.value
