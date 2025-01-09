@@ -36,8 +36,9 @@ class View(QGraphicsView):
         # 初始化节点类型映射
         self.node_types = {
             "输入节点": NumberInputNode,
-            "图片节点": ImageInputNode,
+            "图片输入": ImageInputNode,
             "输出节点": NumberOutputNode,
+            "图片输出": ImageOutputNode,
             "加法节点": SumNode,
             "减法节点": SubtractNode,
             "乘法节点": MultiplyNode,

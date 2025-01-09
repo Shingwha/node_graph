@@ -151,6 +151,11 @@ class Node(QGraphicsItem):
 
     def update_display(self):
         self.prepareGeometryChange()
-        self.content_height = self.inputs_height + self.outputs_height + self.spacing
         print("node_content_height:", self.content_height)
         print("node_height:", self.height)
+        self.inputs_height = 0
+        self.outputs_height = 0
+        for socket in self.input_sockets + self.output_sockets:
+            socket.update_position()
+            socket.box.update_position() if socket.box is not None else None
+        self.content_height = self.inputs_height + self.outputs_height + self.spacing

@@ -1,5 +1,5 @@
 from node import Node
-from PySide6.QtGui import QColor, QPen, QBrush, QFont
+from PySide6.QtGui import QColor, QPen, QBrush, QFont, QPixmap
 
 class NumberInputNode(Node):
     def __init__(self):
@@ -11,7 +11,6 @@ class NumberInputNode(Node):
         )
 
     def run(self):
-        """将输入框的值赋给所有输出socket"""
         for socket in self.output_sockets:
             socket.value = socket.box.get_value()
 
@@ -29,7 +28,8 @@ class ImageInputNode(Node):
         # 设置线条，标题背景深一点
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
+        # self.output_sockets[0].box.value = "dog.jpg"
 
     def run(self):
-        pass
-        
+        for socket in self.output_sockets:
+            socket.value = socket.box.get_value()

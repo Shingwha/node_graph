@@ -45,7 +45,7 @@ class Socket(QGraphicsItem):
             return self._value
         elif self.box is not None:
             return self.box.get_value()
-        return None
+        # return None
 
     @value.setter
     def value(self, new_value):

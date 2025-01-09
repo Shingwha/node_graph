@@ -53,20 +53,23 @@ class LineEditBox(Box, QLineEdit):
 # 添加一个图片组件
 class ImageBox(Box, QLabel):
     def __init__(self, socket):
-        super().__init__(socket=socket) 
-        self.height = self.socket.basic_height *5 
-        self.image = None
+        super().__init__(socket=socket)
+        self.height = self.socket.basic_height * 5
+        # 加载默认图片
+        self.value = "dog.jpg" if self.socket.type == 1 else "cat.jpg"
+        self.pixmap = QPixmap(self.value) if self.value is not None else None
         self.update_display()
 
-
     def update_display(self):
-        self.image = QPixmap("dog.jpg")  # 加载图片
-        self.setPixmap(self.image)  # 设置图片
-        self.setFixedWidth(self.width)
-        self.setScaledContents(True)
-        # 按照图片的高宽比来重新更新self.height
-        self.height = self.width * self.image.height() / self.image.width()
-        self.setFixedHeight(self.height)
+        if self.value is not None and not self.pixmap.isNull():
+            self.setPixmap(self.pixmap)
+            self.setFixedWidth(self.width)
+            self.setScaledContents(True)
+            # 按照图片的高宽比来重新更新self.height
+            self.height = self.width * self.pixmap.height() / self.pixmap.width()
+            self.setFixedHeight(self.height)
+        else:
+            self.clear()
 
     def get_value(self):
-        return None
+        return self.value
