@@ -1,4 +1,5 @@
 from node import Node
+from PySide6.QtGui import QPen, QBrush, QColor, QFont
 
 class NumberOutputNode(Node):
     def __init__(self):
@@ -23,6 +24,9 @@ class ImageOutputNode(Node):
             output_sockets=[]
         )
     
+        self.pen_default = QPen(QColor("#cc6666"))
+        self.brush_title = QBrush(QColor("#c36060"))
+
     def run(self):
         """处理输入值并显示"""
         for socket in self.input_sockets:

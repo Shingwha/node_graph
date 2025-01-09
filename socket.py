@@ -51,7 +51,9 @@ class Socket(QGraphicsItem):
     def value(self, new_value):
         self._value = new_value
         if self.box is not None:
-            self.box.update_display()
+            # self.box.update_display()
+            self.node.update_display()
+            self.node.update_display()
         
         
 
@@ -91,7 +93,6 @@ class Socket(QGraphicsItem):
             self.position_y = self.node.inputs_height - self.box.height/2 if self.box is not None else self.node.inputs_height - self.basic_height/2
             self.position_y = self.position_y + self.node.outputs_height + self.node.title_height
         self.setPos(self.position_x, self.position_y)
-        print("socket position", self.position_x, self.position_y)
 
     def reset(self):
         self._value = None
