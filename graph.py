@@ -62,8 +62,6 @@ class Graph():
                     for socket in node.output_sockets:
                         for edge in socket.edges:
                             edge.transfer_value()
-                            print(edge.output_socket.value)
-                            print(edge.input_socket.value)
                 except Exception as e:
                     print(f"节点 {node} 执行失败: {str(e)}")
                     raise

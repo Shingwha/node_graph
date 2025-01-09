@@ -151,15 +151,24 @@ class Node(QGraphicsItem):
 
     def update_display(self):
         self.prepareGeometryChange()
+        # 重置高度
         self.inputs_height = 0
         self.outputs_height = 0
-        for socket in  self.output_sockets + self.input_sockets:
+        
+        # 更新所有sockets
+        for socket in self.output_sockets + self.input_sockets:
             socket.update_position()
             socket.update()
             for edge in socket.edges:
                 edge.update_path()
-            socket.box.update_position() if socket.box is not None else None
-            socket.box.update_display() if socket.box is not None else None
+            if socket.box is not None:
+                socket.box.update_position()
+                socket.box.update_display()
+        
+        # 计算最终高度
         self.content_height = self.inputs_height + self.outputs_height + self.spacing
         self.height = self.title_height + self.content_height
+        
+        # 强制更新
         self.update()
+        

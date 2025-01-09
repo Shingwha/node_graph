@@ -58,7 +58,7 @@ class Edge(QGraphicsPathItem):
             self.start_socket.edges.remove(self)
         if self.end_socket and self in self.end_socket.edges:
             self.end_socket.edges.remove(self)
-        if self.scene():
+        if self.scene() and self in self.scene().items():
             self.scene().removeItem(self)
 
     def boundingRect(self):

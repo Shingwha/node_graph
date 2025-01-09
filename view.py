@@ -118,7 +118,8 @@ class View(QGraphicsView):
                 # 移除临时Edge对Socket的影响
                 if self.drag_start_socket and self.drag_edge in self.drag_start_socket.edges:
                     self.drag_start_socket.edges.remove(self.drag_edge)
-                self.scene().removeItem(self.drag_edge)
+                if self.drag_edge.scene() and self.drag_edge in self.drag_edge.scene().items():
+                    self.scene().removeItem(self.drag_edge)
                 self.drag_edge = None
                 # 更新Socket显示
                 if self.drag_start_socket:
@@ -146,15 +147,23 @@ class View(QGraphicsView):
         super().mouseMoveEvent(event)
 
     def can_connect(self, start_socket, end_socket):
-        return (start_socket.type == 0 and end_socket.type == 1) or \
-               (start_socket.type == 1 and end_socket.type == 0)
+        if start_socket.datatype != end_socket.datatype:
+            return False
+        if start_socket.type == end_socket.type:
+            return False
+        if start_socket.node == end_socket.node:
+            return False
+        return True
 
     def create_edge(self, start_socket, end_socket):
         # 如果end_socket是input且已有连接，先移除旧连接
         if end_socket.type == 0 and end_socket.edges:
             for edge in end_socket.edges[:]:  # 使用切片创建副本以避免修改正在迭代的列表
                 edge.remove()
-        
+        # 如果start_socket是input且已有连接，先移除旧连接
+        if start_socket.type == 0 and start_socket.edges:
+            for edge in start_socket.edges[:]:  # 使用切片创建副本以避免修改正在迭代的列表
+                edge.remove()
         # 创建新连接
         edge = Edge(start_socket, end_socket)
         self.scene().add_edge(edge)  # 将边添加到scene的edges列表中

@@ -51,13 +51,13 @@ class Socket(QGraphicsItem):
     def value(self, new_value):
         self._value = new_value
         if self.box is not None:
-            # self.box.update_display()
+            # 抽象代码记得修改
             self.node.update_display()
             self.node.update_display()
         
         
 
-    def initBox(self):
+    def initBox(self): 
         if self.box_type == 0:
             return
         if self.box_type == 1:
