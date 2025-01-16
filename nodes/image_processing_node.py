@@ -34,10 +34,12 @@ class FlipNode(Node):
                 {"datatype": 1},  # 输入图片
                 {"datatype": 0, "box_type": 1}   # 翻转方向 (0:水平, 1:垂直)
             ],
-            output_sockets=[{"datatype": 1}]  # 输出翻转后的图片
+            output_sockets=[{"datatype": 1}]
         )
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
+        # 设置输入框的placeholderText
+        self.input_sockets[1].box.setPlaceholderText("0:水平, 1:垂直")
 
     def run(self):
         """根据方向翻转图像"""
@@ -71,6 +73,8 @@ class BrightnessNode(Node):
         )
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
+        # 设置输入框的placeholderText
+        self.input_sockets[1].box.setPlaceholderText("亮度, -100-100")
 
     def run(self):
         """调整图像亮度"""
@@ -109,6 +113,8 @@ class RotateNode(Node):
         )
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
+        # 设置输入框的placeholderText
+        self.input_sockets[1].box.setPlaceholderText("旋转角度 (0-360)")
 
     def run(self):
         """旋转图像"""
@@ -139,6 +145,8 @@ class ContrastNode(Node):
         )
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
+        # 设置输入框的placeholderText
+        self.input_sockets[1].box.setPlaceholderText("对比度-100-100")
 
     def run(self):
         """调整图像对比度"""
@@ -181,6 +189,9 @@ class ScaleNode(Node):
         )
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
+        # 设置输入框的placeholderText
+        self.input_sockets[1].box.setPlaceholderText("宽度 0-100")
+        self.input_sockets[2].box.setPlaceholderText("高度 0-100")
 
     def run(self):
         """缩放图像"""
@@ -219,6 +230,11 @@ class CropNode(Node):
         )
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
+        # 设置输入框的placeholderText
+        self.input_sockets[1].box.setPlaceholderText("x, 0-图片宽度")
+        self.input_sockets[2].box.setPlaceholderText("y, 0-图片高度")
+        self.input_sockets[3].box.setPlaceholderText("宽度, 0-图片宽度")
+        self.input_sockets[4].box.setPlaceholderText("高度, 0-图片高度")
 
     def run(self):
         """裁剪图像"""
