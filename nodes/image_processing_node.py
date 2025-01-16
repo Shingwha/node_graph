@@ -300,10 +300,11 @@ class CropNode(Node):
             return
 
         # 确保裁剪区域在图像范围内
-        x = max(0, min(x, input_image.width() - 1))
-        y = max(0, min(y, input_image.height() - 1))
-        width = min(width, input_image.width() - x)
-        height = min(height, input_image.height() - y)
+        # 将输入值转换为整数，如果为None则使用0
+        x = int(max(0, min(x or 0, input_image.width() - 1)))
+        y = int(max(0, min(y or 0, input_image.height() - 1)))
+        width = int(min(width or input_image.width(), input_image.width() - x))
+        height = int(min(height or input_image.height(), input_image.height() - y))
         
         # 使用OpenCV进行裁剪
         mat = qimage_to_mat(input_image)

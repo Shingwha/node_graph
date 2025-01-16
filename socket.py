@@ -53,6 +53,7 @@ class Socket(QGraphicsItem):
         if self.box is not None:
             # 抽象代码记得修改
             self.node.update_display()
+            self.node.update_display()
             
         
         
