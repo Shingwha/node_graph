@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QLineEdit, QGraphicsProxyWidget, QWidget,QLabel
 from PySide6.QtGui import QRegularExpressionValidator, QPixmap
-from PySide6.QtCore import QRegularExpression,QPointF
+from PySide6.QtCore import QRegularExpression,QPointF, Qt
 
 class Box():
     def __init__(self, socket):
@@ -50,27 +50,50 @@ class LineEditBox(Box, QLineEdit):
         except ValueError:
             return None
 
+from PySide6.QtWidgets import QFileDialog
+
 # 添加一个图片组件
 class ImageBox(Box, QLabel):
     def __init__(self, socket):
         super().__init__(socket=socket)
         self.height = self.socket.basic_height * 5
-        # 加载默认图片
-        self.value = "dog.jpg" if self.socket.type == 1 else "cat.jpg"
-        self.pixmap = QPixmap(self.value)
+        self.value = None
+        self.pixmap = None
         self.update_display()
+        self.setMouseTracking(True)
+
+    def mousePressEvent(self, event):
+        if self.pixmap is None:
+            self.select_image()
+            event.accept()
+        else:
+            super().mousePressEvent(event)
+        self.socket.node.update_display()
+
+    def select_image(self):
+        file_name, _ = QFileDialog.getOpenFileName(
+            self.socket.node.scene().views()[0],
+            "选择图片文件", 
+            "",
+            "图片文件 (*.jpg *.png *.bmp)"
+        )
+        if file_name:
+            self.value = file_name
+            self.update_display()
 
     def update_display(self):
         if self.socket.value is not None:
             self.pixmap = QPixmap(self.socket.value)
+            self.setPixmap(self.pixmap)
+            self.setFixedWidth(self.width)
+            self.setScaledContents(True)
+            # 按照图片的高宽比来重新更新self.height
+            self.height = self.width * self.pixmap.height() / self.pixmap.width()
+            self.setFixedHeight(self.height)
         else:
-            self.pixmap = QPixmap(self.value)
-        self.setPixmap(self.pixmap)
-        self.setFixedWidth(self.width)
-        self.setScaledContents(True)
-        # 按照图片的高宽比来重新更新self.height
-        self.height = self.width * self.pixmap.height() / self.pixmap.width()
-        self.setFixedHeight(self.height)
+            self.setText("点击选择图片")
+            self.setStyleSheet("border: none; background-color: rgba(70, 70, 70, 0.4); color: white;")
+            self.setAlignment(Qt.AlignCenter)
 
     def get_value(self):
         return self.value

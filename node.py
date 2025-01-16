@@ -29,7 +29,7 @@ class Node(QGraphicsItem):
         self._height = self.title_height + self.content_height
         self.width = 120
         self.edge_size = 3
-        self.spacing = 0.05*self.width
+        self.spacing = 0.07*self.width
     
         self.pen_default = QPen(QColor("#50B780"))
         self.pen_selected = QPen(QColor("#F2E383"))
@@ -162,13 +162,10 @@ class Node(QGraphicsItem):
             for edge in socket.edges:
                 edge.update_path()
             if socket.box is not None:
-                socket.box.update_position()
                 socket.box.update_display()
+                socket.box.update_position()
         
         # 计算最终高度
-        self.content_height = self.inputs_height + self.outputs_height + self.spacing
+        self.content_height = max(self.inputs_height, self.outputs_height) + self.spacing
         self.height = self.title_height + self.content_height
-        
-        # 强制更新
         self.update()
-        

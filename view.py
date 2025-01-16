@@ -5,9 +5,7 @@ from socket import Socket
 from edge import Edge
 from node import Node
 from graph import Graph
-from nodes.input_node import *
-from nodes.output_node import *
-from nodes.calculate_node import *
+from node_factory import NodeFactory
 
 MODE_NOOP = 1
 MODE_EDGE_DRAG = 2
@@ -33,19 +31,7 @@ class View(QGraphicsView):
         self.drag_edge = None
         self.drag_start_pos = None
 
-        # 初始化节点类型映射
-        self.node_types = {
-            "输入节点": NumberInputNode,
-            "图片输入": ImageInputNode,
-            "输出节点": NumberOutputNode,
-            "图片输出": ImageOutputNode,
-            "加法节点": SumNode,
-            "减法节点": SubtractNode,
-            "乘法节点": MultiplyNode,
-            "除法节点": DivideNode,
-            "幂运算节点": PowerNode,
-            "平方根节点": SqrtNode
-        }
+        self.node_factory = NodeFactory()
 
     def initUI(self):
         # 设置渲染提示：抗锯齿 文本抗锯齿 平滑图像变换
@@ -237,10 +223,20 @@ class View(QGraphicsView):
             # 创建上下文菜单
             menu = QMenu(self)
             
-            # 动态添加节点创建选项
-            actions = {}
-            for node_name in self.node_types:
-                actions[node_name] = menu.addAction(f"创建{node_name}")
+            # 递归创建菜单项
+            def create_menu_items(menu, node_types):
+                for name, value in node_types.items():
+                    if isinstance(value, dict):
+                        # 如果是字典，创建子菜单
+                        sub_menu = menu.addMenu(name)
+                        create_menu_items(sub_menu, value)
+                    else:
+                        # 如果是节点类，创建菜单项
+                        action = menu.addAction(f"创建 {name}")
+                        action.node_type = name
+            
+            # 创建主菜单
+            create_menu_items(menu, self.node_factory.node_types)
             
             # 显示菜单并获取选择
             action = menu.exec_(self.mapToGlobal(event.pos()))
@@ -249,14 +245,15 @@ class View(QGraphicsView):
                 # 获取点击位置
                 pos = self.mapToScene(event.pos())
                 # 根据选择创建节点
-                self.create_node(action.text().replace("创建", ""), pos)
+                self.create_node(action.node_type, pos)
         else:
             return super().mousePressEvent(event)
 
     def create_node(self, node_type, pos):
         """根据节点类型创建节点"""
-        if node_type in self.node_types:
-            node_class = self.node_types[node_type]
-            node = node_class()
+        try:
+            node = self.node_factory.create_node(node_type)
             node.setPos(pos)
             self.scene().add_node(node)
+        except ValueError as e:
+            print(f"创建节点失败: {e}")
