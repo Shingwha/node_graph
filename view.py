@@ -17,8 +17,6 @@ class View(QGraphicsView):
     def __init__(self, scene):
         super().__init__(scene)
         self.initUI()
-        # 初始化命令栈
-        self.command_stack = CommandStack()
         # scale
         self.zoom_in_factor = 1.25
         self.zoom_out_factor = 1 / self.zoom_in_factor
