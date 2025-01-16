@@ -8,7 +8,9 @@ from nodes.image_processing_node import (
     RotateNode,
     ContrastNode,
     ScaleNode,
-    CropNode
+    CropNode,
+    ImageOverlayNode,
+    ImageSizeNode
 )
 
 class NodeFactory:
@@ -37,7 +39,9 @@ class NodeFactory:
             "旋转": RotateNode,
             "对比度调整": ContrastNode,
             "缩放": ScaleNode,
-            "裁剪": CropNode
+            "裁剪": CropNode,
+            "图片叠加": ImageOverlayNode,
+            "图片尺寸": ImageSizeNode
         }
     }
 

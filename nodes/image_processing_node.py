@@ -1,6 +1,7 @@
 from node import Node
-from PySide6.QtGui import QImage, QColor, QPen, QBrush
+from PySide6.QtGui import QImage, QColor, QPen, QBrush, QPainter
 from PySide6.QtCore import Qt
+
 
 class GrayscaleNode(Node):
     def __init__(self):
@@ -263,3 +264,78 @@ class CropNode(Node):
         # 执行裁剪
         cropped_image = input_image.copy(x, y, width, height)
         self.output_sockets[0].value = cropped_image
+
+class ImageOverlayNode(Node):
+    def __init__(self):
+        super().__init__(
+            title="图片叠加",
+            type=4008,
+            input_sockets=[
+                {"datatype": 1},  # 输入图片1
+                {"datatype": 1},  # 输入图片2
+                {"datatype": 0, "box_type": 1}  # 透明度 (0-1)
+            ],
+            output_sockets=[{"datatype": 1}]  # 输出叠加后的图片
+        )
+        self.pen_default = QPen(QColor("#cc6666"))
+        self.brush_title = QBrush(QColor("#c36060"))
+        # 设置输入框的placeholderText
+        self.input_sockets[2].box.setPlaceholderText("透明度 0-1")
+
+    def run(self):
+        """将两张图片叠加"""
+        image1 = self.input_sockets[0].value
+        image2 = self.input_sockets[1].value
+        alpha = self.input_sockets[2].value or 0.5
+        
+        if image1 is None or not isinstance(image1, QImage) or \
+           image2 is None or not isinstance(image2, QImage):
+            self.output_sockets[0].value = None
+            return
+
+        # 确保透明度在0到1之间
+        alpha = max(0, min(1, alpha))
+        
+        # 创建新图像
+        width = max(image1.width(), image2.width())
+        height = max(image1.height(), image2.height())
+        result_image = QImage(width, height, QImage.Format_ARGB32)
+        result_image.fill(Qt.transparent)
+        
+        # 绘制第一张图片
+        painter = QPainter(result_image)
+        painter.drawImage(0, 0, image1)
+        
+        # 绘制第二张图片并应用透明度
+        painter.setOpacity(alpha)
+        painter.drawImage(0, 0, image2)
+        painter.end()
+        
+        self.output_sockets[0].value = result_image
+
+class ImageSizeNode(Node):
+    def __init__(self):
+        super().__init__(
+            title="图片尺寸",
+            type=4009,
+            input_sockets=[{"datatype": 1}],  # 输入图片
+            output_sockets=[
+                {"datatype": 0, "box_type": 1},  # 宽度
+                {"datatype": 0, "box_type": 1}   # 高度
+            ]
+        )
+        self.pen_default = QPen(QColor("#cc6666"))
+        self.brush_title = QBrush(QColor("#c36060"))
+        
+    def run(self):
+        input_image = self.input_sockets[0].value
+        if input_image is None or not isinstance(input_image, QImage):
+            self.output_sockets[0].value = None
+            self.output_sockets[1].value = None
+            return
+            
+        width = input_image.width()
+        height = input_image.height()
+        self.output_sockets[0].value = width
+        self.output_sockets[1].value = height
+        self.update_display()
