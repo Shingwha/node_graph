@@ -1,7 +1,15 @@
 from nodes.input_node import NumberInputNode, ImageInputNode
 from nodes.output_node import NumberOutputNode, ImageOutputNode
 from nodes.calculate_node import SumNode, SubtractNode, MultiplyNode, DivideNode, PowerNode, SqrtNode
-from nodes.image_processing_node import GrayscaleNode, FlipNode
+from nodes.image_processing_node import (
+    GrayscaleNode,
+    FlipNode,
+    BrightnessNode,
+    RotateNode,
+    ContrastNode,
+    ScaleNode,
+    CropNode
+)
 
 class NodeFactory:
     # 分组节点类型映射
@@ -24,7 +32,12 @@ class NodeFactory:
         },
         "图像处理": {
             "灰度化": GrayscaleNode,
-            "翻转": FlipNode
+            "翻转": FlipNode,
+            "亮度调整": BrightnessNode,
+            "旋转": RotateNode,
+            "对比度调整": ContrastNode,
+            "缩放": ScaleNode,
+            "裁剪": CropNode
         }
     }
 
