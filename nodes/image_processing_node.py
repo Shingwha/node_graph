@@ -1,5 +1,5 @@
 from node import Node
-from PySide6.QtGui import QImage, QColor, QPen, QBrush, QPainter
+from PySide6.QtGui import QImage, QColor, QPen, QBrush, QPainter, QTransform
 from PySide6.QtCore import Qt
 
 

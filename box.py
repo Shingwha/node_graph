@@ -59,6 +59,23 @@ class ImageBox(Box, QLabel):
         self.height = self.socket.basic_height * 5
         self.value = None
         self.pixmap = None
+        
+        # 添加删除按钮
+        self.delete_button = QLabel(self)
+        self.delete_button.setText("×")
+        self.delete_button.setStyleSheet("""
+            color: white;
+            font-size: 8px;
+            background-color: rgba(70, 30, 30, 0.8);
+            opacity: 0.8;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 2px 6px;
+            
+        """)
+        self.delete_button.setFixedSize(14, 14)
+        self.delete_button.move(self.width - self.delete_button.width(), 0)
+        self.delete_button.mousePressEvent = self.delete_image
+        
         self.update_display()
         self.setMouseTracking(True)
 
@@ -79,6 +96,7 @@ class ImageBox(Box, QLabel):
         )
         if file_name:
             self.value = QImage(file_name)
+            self.socket.value = self.value
             self.update_display()
 
     def update_display(self):
@@ -90,10 +108,19 @@ class ImageBox(Box, QLabel):
             # 按照图片的高宽比来重新更新self.height
             self.height = self.width * self.socket.value.height() / self.socket.value.width()
             self.setFixedHeight(self.height)
+            
         else:
             self.setText("点击选择图片")
             self.setStyleSheet("border: none; background-color: rgba(70, 70, 70, 0.4); color: white;")
             self.setAlignment(Qt.AlignCenter)
+            self.delete_button.show()
 
     def get_value(self):
         return self.value if isinstance(self.value, QImage) else None
+        
+    def delete_image(self, event):
+        self.value = None
+        self.socket.value = None
+        self.pixmap = None
+        self.update_display()
+        self.socket.node.update_display()
