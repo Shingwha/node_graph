@@ -41,42 +41,41 @@ class Edge(QGraphicsPathItem):
 
 
     def update_path(self, mouse_pos=None):
-        """Calculate the cubic Bezier line connection with 2 control points
-
-        :returns: ``QPainterPath`` of the cubic Bezier line
-        :rtype: ``QPainterPath``
-        """
-        s = self.start_socket.scenePos()
-        d = mouse_pos if self.end_socket is None else self.end_socket.scenePos()
+        start_pos = self.start_socket.scenePos()
+        end_pos = mouse_pos if self.end_socket is None else self.end_socket.scenePos()
         
-        if d is None:
+        if end_pos is None:
             return
             
-        dist = (d.x() - s.x()) * 0.5
+        dist = (end_pos.x() - start_pos.x()) * 0.5
 
-        cpx_s = +dist
-        cpx_d = -dist
-        cpy_s = 0
-        cpy_d = 0
+        ctrl1_x = +dist
+        ctrl2_x = -dist
+        ctrl1_y = 0
+        ctrl2_y = 0
 
         if self.start_socket is not None:
-            if (s.x() > d.x() and self.start_socket.type == 1) or (s.x() < d.x() and self.start_socket.type == 0):
-                cpx_d *= -1
-                cpx_s *= -1
+            if (start_pos.x() > end_pos.x() and self.start_socket.type == 1) or (start_pos.x() < end_pos.x() and self.start_socket.type == 0):
+                ctrl2_x *= -1
+                ctrl1_x *= -1
 
-                cpy_d = (
-                    (s.y() - d.y()) / math.fabs(
-                        (s.y() - d.y()) if (s.y() - d.y()) != 0 else 0.00001
+                ctrl2_y = (
+                    (start_pos.y() - end_pos.y()) / math.fabs(
+                        (start_pos.y() - end_pos.y()) if (start_pos.y() - end_pos.y()) != 0 else 0.00001
                     )
                 ) * EDGE_CP_ROUNDNESS
-                cpy_s = (
-                    (d.y() - s.y()) / math.fabs(
-                        (d.y() - s.y()) if (d.y() - s.y()) != 0 else 0.00001
+                ctrl1_y = (
+                    (end_pos.y() - start_pos.y()) / math.fabs(
+                        (end_pos.y() - start_pos.y()) if (end_pos.y() - start_pos.y()) != 0 else 0.00001
                     )
                 ) * EDGE_CP_ROUNDNESS
 
-        path = QPainterPath(s)
-        path.cubicTo(s.x() + cpx_s, s.y() + cpy_s, d.x() + cpx_d, d.y() + cpy_d, d.x(), d.y())
+        path = QPainterPath(start_pos)
+        path.cubicTo(
+            start_pos.x() + ctrl1_x, start_pos.y() + ctrl1_y,
+            end_pos.x() + ctrl2_x, end_pos.y() + ctrl2_y,
+            end_pos.x(), end_pos.y()
+        )
         self.setPath(path)
         self.update()
 
