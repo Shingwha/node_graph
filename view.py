@@ -17,6 +17,8 @@ class View(QGraphicsView):
     def __init__(self, scene):
         super().__init__(scene)
         self.initUI()
+        # 初始化命令栈
+        self.command_stack = CommandStack()
         # scale
         self.zoom_in_factor = 1.25
         self.zoom_out_factor = 1 / self.zoom_in_factor
@@ -42,6 +44,9 @@ class View(QGraphicsView):
         
         # 设置为随鼠标锚点进行缩放
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        
+        # 设置菜单样式
+        self.setup_menu_style()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MiddleButton:
@@ -217,55 +222,40 @@ class View(QGraphicsView):
         self.graph = None
         print("Graph execution stopped")
 
+    def setup_menu_style(self):
+        """设置菜单样式"""
+        self.menu_style = """
+            QMenu {
+                background-color: #2D2D30;
+                border: 1px solid #3F3F46;
+                padding: 5px;
+                border-radius: 4px;
+            }
+            QMenu::item {
+                color: #DCDCDC;
+                padding: 5px 20px;
+                margin: 2px;
+                border-radius: 2px;
+            }
+            QMenu::item:selected {
+                background-color: #3E3E40;
+            }
+            QMenu::item:disabled {
+                color: #808080;
+            }
+            QMenu::separator {
+                height: 1px;
+                background: #3F3F46;
+                margin: 5px 0;
+            }
+        """
+
     def create_nodes_menu(self, event):
         item = self.itemAt(event.pos())
         if item is None:
             # 创建上下文菜单
             menu = QMenu(self)
-            # 设置菜单样式去除左侧空白
-            menu.setStyleSheet("""
-                QMenu {
-                    background-color: #2D2D2D;
-                    border: 1px solid #444;
-                    padding: 5px;
-                    border-radius: 8px;
-                }
-                QMenu::menu {
-                    background-color: #2D2D2D;
-                    border: 1px solid #444;
-                    padding: 5px;
-                    border-radius: 8px;
-                    margin-left: 5px;
-                }
-                QMenu::icon {
-                    width: 0px;
-                    height: 0px;
-                    margin: 0px;
-                }
-                QMenu::item {
-                    padding-top: 8px;
-                    padding-right: 20px;
-                    padding-bottom: 8px;
-                    padding-left: 10px;
-                    margin: 2px 0;
-                    color: #DDD;
-                    font-size: 12px;
-                    background-color: transparent;
-                    border-radius: 4px;
-                }
-                QMenu::item:selected {
-                    background-color: #444;
-                    color: #FFF;
-                }
-                QMenu::item:disabled {
-                    color: #777;
-                }
-                QMenu::separator {
-                    height: 1px;
-                    background: #444;
-                    margin: 5px 0;
-                }
-            """)
+            menu.setStyleSheet(self.menu_style)
             
             # 递归创建菜单项
             def create_menu_items(menu, node_types):
