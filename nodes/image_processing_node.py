@@ -1,5 +1,6 @@
 from node import Node
 from PySide6.QtGui import QImage, QColor, QPen, QBrush
+from PySide6.QtCore import Qt
 
 class GrayscaleNode(Node):
     def __init__(self):
@@ -190,14 +191,19 @@ class ScaleNode(Node):
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
-        self.input_sockets[1].box.setPlaceholderText("宽度 0-100")
-        self.input_sockets[2].box.setPlaceholderText("高度 0-100")
+        self.input_sockets[1].box.setPlaceholderText("宽度 0-10.0")
+        self.input_sockets[2].box.setPlaceholderText("高度 0-10.0")
 
     def run(self):
         """缩放图像"""
         input_image = self.input_sockets[0].value
-        width_scale = self.input_sockets[1].value
-        height_scale = self.input_sockets[2].value
+        # 获取并验证缩放比例
+        width_scale = self.input_sockets[1].value or 1.0
+        height_scale = self.input_sockets[2].value or 1.0
+        
+        # 限制缩放比例在0.1到10.0之间
+        width_scale = max(0.1, min(10.0, float(width_scale)))
+        height_scale = max(0.1, min(10.0, float(height_scale)))
         
         if input_image is None or not isinstance(input_image, QImage):
             self.output_sockets[0].value = None
