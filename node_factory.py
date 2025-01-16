@@ -10,7 +10,8 @@ from nodes.image_processing_node import (
     ScaleNode,
     CropNode,
     ImageOverlayNode,
-    ImageSizeNode
+    ImageSizeNode,
+    RGBSplitNode
 )
 
 class NodeFactory:
@@ -41,7 +42,8 @@ class NodeFactory:
             "缩放": ScaleNode,
             "裁剪": CropNode,
             "图片叠加": ImageOverlayNode,
-            "图片尺寸": ImageSizeNode
+            "图片尺寸": ImageSizeNode,
+            "RGB分离": RGBSplitNode
         }
     }
 
