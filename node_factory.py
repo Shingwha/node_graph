@@ -25,7 +25,22 @@ class NodeFactory:
 
     @staticmethod
     def find_node_class(node_types, node_type):
-        """递归查找节点类"""
+        """递归查找节点类，支持带斜杠的路径格式"""
+        # 如果包含斜杠，先分割路径
+        if '/' in node_type:
+            parts = node_type.split('/')
+            current = node_types
+            # 遍历路径的每一部分
+            for part in parts[:-1]:
+                if part in current and isinstance(current[part], dict):
+                    current = current[part]
+                else:
+                    return None
+            # 最后一部分是实际的节点类型
+            node_type = parts[-1]
+            return current.get(node_type) if node_type in current else None
+        
+        # 如果不包含斜杠，保持原有逻辑
         for name, value in node_types.items():
             if name == node_type and not isinstance(value, dict):
                 return value

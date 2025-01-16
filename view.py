@@ -222,6 +222,50 @@ class View(QGraphicsView):
         if item is None:
             # 创建上下文菜单
             menu = QMenu(self)
+            # 设置菜单样式去除左侧空白
+            menu.setStyleSheet("""
+                QMenu {
+                    background-color: #2D2D2D;
+                    border: 1px solid #444;
+                    padding: 5px;
+                    border-radius: 8px;
+                }
+                QMenu::menu {
+                    background-color: #2D2D2D;
+                    border: 1px solid #444;
+                    padding: 5px;
+                    border-radius: 8px;
+                    margin-left: 5px;
+                }
+                QMenu::icon {
+                    width: 0px;
+                    height: 0px;
+                    margin: 0px;
+                }
+                QMenu::item {
+                    padding-top: 8px;
+                    padding-right: 20px;
+                    padding-bottom: 8px;
+                    padding-left: 10px;
+                    margin: 2px 0;
+                    color: #DDD;
+                    font-size: 12px;
+                    background-color: transparent;
+                    border-radius: 4px;
+                }
+                QMenu::item:selected {
+                    background-color: #444;
+                    color: #FFF;
+                }
+                QMenu::item:disabled {
+                    color: #777;
+                }
+                QMenu::separator {
+                    height: 1px;
+                    background: #444;
+                    margin: 5px 0;
+                }
+            """)
             
             # 递归创建菜单项
             def create_menu_items(menu, node_types):
@@ -232,8 +276,14 @@ class View(QGraphicsView):
                         create_menu_items(sub_menu, value)
                     else:
                         # 如果是节点类，创建菜单项
-                        action = menu.addAction(f"创建 {name}")
-                        action.node_type = name
+                        action = menu.addAction(f"{name}")
+                        # 对于叶子节点，传递完整的节点类型路径
+                        if not isinstance(value, dict):
+                            # 获取父菜单的文本作为分组名称
+                            parent_text = menu.title() if menu.title() else ""
+                            action.node_type = f"{parent_text}/{name}" if parent_text else name
+                        else:
+                            action.node_type = name
             
             # 创建主菜单
             create_menu_items(menu, self.node_factory.node_types)
