@@ -1,6 +1,34 @@
 from node import Node
 from PySide6.QtGui import QImage, QColor, QPen, QBrush, QPainter, QTransform
 from PySide6.QtCore import Qt
+import cv2
+import numpy as np
+
+def qimage_to_mat(qimg):
+    """将QImage转换为OpenCV Mat"""
+    qimg = qimg.convertToFormat(QImage.Format_RGB888)
+    width = qimg.width()
+    height = qimg.height()
+    ptr = qimg.constBits()
+    bytes_per_line = qimg.bytesPerLine()
+    
+    # 处理字节对齐问题
+    if bytes_per_line == width * 3:
+        arr = np.frombuffer(ptr, dtype=np.uint8).reshape(height, width, 3)
+    else:
+        # 处理有填充字节的情况
+        arr = np.frombuffer(ptr, dtype=np.uint8, count=bytes_per_line * height)
+        arr = arr.reshape(height, bytes_per_line)
+        arr = arr[:, :width * 3].reshape(height, width, 3)
+    
+    return cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
+
+def mat_to_qimage(mat):
+    """将OpenCV Mat转换为QImage"""
+    rgb_image = cv2.cvtColor(mat, cv2.COLOR_BGR2RGB)
+    h, w, ch = rgb_image.shape
+    bytes_per_line = ch * w
+    return QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
 
 
 class GrayscaleNode(Node):
@@ -23,8 +51,10 @@ class GrayscaleNode(Node):
             self.output_sockets[0].value = None
             return
 
-        # 转换为灰度图像
-        grayscale_image = input_image.convertToFormat(QImage.Format_Grayscale8)
+        # 使用OpenCV进行灰度转换
+        mat = qimage_to_mat(input_image)
+        gray_mat = cv2.cvtColor(mat, cv2.COLOR_BGR2GRAY)
+        grayscale_image = mat_to_qimage(gray_mat)
         self.output_sockets[0].value = grayscale_image
 
 class FlipNode(Node):
@@ -52,14 +82,16 @@ class FlipNode(Node):
             self.output_sockets[0].value = None
             return
 
-        # 根据方向进行翻转
+        # 使用OpenCV进行翻转
+        mat = qimage_to_mat(input_image)
         if direction == 0:  # 水平翻转
-            flipped_image = input_image.mirrored(True, False)
+            flipped_mat = cv2.flip(mat, 1)
         elif direction == 1:  # 垂直翻转
-            flipped_image = input_image.mirrored(False, True)
+            flipped_mat = cv2.flip(mat, 0)
         else:
-            flipped_image = input_image  # 无效方向，返回原图
+            flipped_mat = mat  # 无效方向，返回原图
 
+        flipped_image = mat_to_qimage(flipped_mat)
         self.output_sockets[0].value = flipped_image
 
 class BrightnessNode(Node):
@@ -90,16 +122,13 @@ class BrightnessNode(Node):
         # 将亮度值限制在-100到100之间
         brightness = max(-100, min(100, brightness))
         
-        # 创建新图像并调整亮度
-        result_image = QImage(input_image.size(), QImage.Format_ARGB32)
-        for y in range(input_image.height()):
-            for x in range(input_image.width()):
-                color = QColor(input_image.pixel(x, y))
-                h, s, v, a = color.getHsv()
-                v = min(255, max(0, v + brightness * 2.55))  # 调整亮度
-                color.setHsv(h, s, v, a)
-                result_image.setPixelColor(x, y, color)
+        # 使用OpenCV调整亮度
+        mat = qimage_to_mat(input_image)
+        alpha = 1.0
+        beta = brightness * 2.55  # 将-100到100映射到-255到255
+        result_mat = cv2.convertScaleAbs(mat, alpha=alpha, beta=beta)
         
+        result_image = mat_to_qimage(result_mat)
         self.output_sockets[0].value = result_image
 
 class RotateNode(Node):
@@ -127,11 +156,28 @@ class RotateNode(Node):
             self.output_sockets[0].value = None
             return
 
-        # 创建变换矩阵并旋转
-        transform = QTransform()
-        transform.rotate(angle)
-        rotated_image = input_image.transformed(transform)
+        # 使用OpenCV进行旋转
+        mat = qimage_to_mat(input_image)
+        (h, w) = mat.shape[:2]
+        center = (w // 2, h // 2)
         
+        # 计算旋转矩阵
+        M = cv2.getRotationMatrix2D(center, angle, 1.0)
+        
+        # 计算新的边界尺寸
+        cos = np.abs(M[0, 0])
+        sin = np.abs(M[0, 1])
+        new_w = int((h * sin) + (w * cos))
+        new_h = int((h * cos) + (w * sin))
+        
+        # 调整旋转矩阵以考虑平移
+        M[0, 2] += (new_w / 2) - center[0]
+        M[1, 2] += (new_h / 2) - center[1]
+        
+        # 执行旋转
+        rotated_mat = cv2.warpAffine(mat, M, (new_w, new_h))
+        
+        rotated_image = mat_to_qimage(rotated_mat)
         self.output_sockets[0].value = rotated_image
 
 class ContrastNode(Node):
@@ -159,22 +205,20 @@ class ContrastNode(Node):
             self.output_sockets[0].value = None
             return
 
+        # 处理contrast为None的情况
+        if contrast is None:
+            contrast = 0
+            
         # 将对比度值限制在-100到100之间
         contrast = max(-100, min(100, contrast))
         
-        # 创建新图像并调整对比度
-        result_image = QImage(input_image.size(), QImage.Format_ARGB32)
-        factor = (259 * (contrast + 255)) / (255 * (259 - contrast))
+        # 使用OpenCV调整对比度
+        mat = qimage_to_mat(input_image)
+        alpha = (contrast + 100) / 100.0  # 将-100到100映射到0到2
+        beta = 0
+        result_mat = cv2.convertScaleAbs(mat, alpha=alpha, beta=beta)
         
-        for y in range(input_image.height()):
-            for x in range(input_image.width()):
-                color = QColor(input_image.pixel(x, y))
-                r = min(255, max(0, factor * (color.red() - 128) + 128))
-                g = min(255, max(0, factor * (color.green() - 128) + 128))
-                b = min(255, max(0, factor * (color.blue() - 128) + 128))
-                color.setRgb(r, g, b)
-                result_image.setPixelColor(x, y, color)
-        
+        result_image = mat_to_qimage(result_mat)
         self.output_sockets[0].value = result_image
 
 class ScaleNode(Node):
@@ -210,15 +254,15 @@ class ScaleNode(Node):
             self.output_sockets[0].value = None
             return
 
-        # 计算新尺寸
+        # 使用OpenCV进行缩放
+        mat = qimage_to_mat(input_image)
         new_width = int(input_image.width() * width_scale)
         new_height = int(input_image.height() * height_scale)
         
-        # 缩放图像
-        scaled_image = input_image.scaled(new_width, new_height,
-                                        Qt.AspectRatioMode.IgnoreAspectRatio,
-                                        Qt.TransformationMode.SmoothTransformation)
+        scaled_mat = cv2.resize(mat, (new_width, new_height),
+                              interpolation=cv2.INTER_LINEAR)
         
+        scaled_image = mat_to_qimage(scaled_mat)
         self.output_sockets[0].value = scaled_image
 
 class CropNode(Node):
@@ -261,8 +305,11 @@ class CropNode(Node):
         width = min(width, input_image.width() - x)
         height = min(height, input_image.height() - y)
         
-        # 执行裁剪
-        cropped_image = input_image.copy(x, y, width, height)
+        # 使用OpenCV进行裁剪
+        mat = qimage_to_mat(input_image)
+        cropped_mat = mat[y:y+height, x:x+width]
+        
+        cropped_image = mat_to_qimage(cropped_mat)
         self.output_sockets[0].value = cropped_image
 
 class ImageOverlayNode(Node):
@@ -296,21 +343,22 @@ class ImageOverlayNode(Node):
         # 确保透明度在0到1之间
         alpha = max(0, min(1, alpha))
         
-        # 创建新图像
-        width = max(image1.width(), image2.width())
-        height = max(image1.height(), image2.height())
-        result_image = QImage(width, height, QImage.Format_ARGB32)
-        result_image.fill(Qt.transparent)
+        # 将QImage转换为Mat
+        mat1 = qimage_to_mat(image1)
+        mat2 = qimage_to_mat(image2)
         
-        # 绘制第一张图片
-        painter = QPainter(result_image)
-        painter.drawImage(0, 0, image1)
+        # 调整图像尺寸
+        height = max(mat1.shape[0], mat2.shape[0])
+        width = max(mat1.shape[1], mat2.shape[1])
         
-        # 绘制第二张图片并应用透明度
-        painter.setOpacity(alpha)
-        painter.drawImage(0, 0, image2)
-        painter.end()
+        # 调整图像大小
+        mat1 = cv2.resize(mat1, (width, height))
+        mat2 = cv2.resize(mat2, (width, height))
         
+        # 使用OpenCV进行图像叠加
+        result_mat = cv2.addWeighted(mat1, 1 - alpha, mat2, alpha, 0)
+        
+        result_image = mat_to_qimage(result_mat)
         self.output_sockets[0].value = result_image
 
 class ImageSizeNode(Node):
