@@ -227,13 +227,16 @@ class View(QGraphicsView):
                 background-color: #2D2D30;
                 border: 1px solid #3F3F46;
                 padding: 5px;
-                border-radius: 4px;
+                border-radius: 7px;
             }
             QMenu::item {
                 color: #DCDCDC;
-                padding: 5px 20px;
-                margin: 2px;
-                border-radius: 2px;
+                padding-left: 7px;
+                padding-right: 15px;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                
+                border-radius: 4px;
             }
             QMenu::item:selected {
                 background-color: #3E3E40;

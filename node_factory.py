@@ -1,6 +1,7 @@
 from nodes.input_node import NumberInputNode, ImageInputNode
-from nodes.output_node import NumberOutputNode, ImageOutputNode  
+from nodes.output_node import NumberOutputNode, ImageOutputNode
 from nodes.calculate_node import SumNode, SubtractNode, MultiplyNode, DivideNode, PowerNode, SqrtNode
+from nodes.image_processing_node import GrayscaleNode, FlipNode
 
 class NodeFactory:
     # 分组节点类型映射
@@ -20,6 +21,10 @@ class NodeFactory:
             "除法": DivideNode,
             "幂运算": PowerNode,
             "平方根": SqrtNode
+        },
+        "图像处理": {
+            "灰度化": GrayscaleNode,
+            "翻转": FlipNode
         }
     }
 

@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QLineEdit, QGraphicsProxyWidget, QWidget,QLabel
-from PySide6.QtGui import QRegularExpressionValidator, QPixmap
+from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
 
 class Box():
@@ -73,22 +73,22 @@ class ImageBox(Box, QLabel):
     def select_image(self):
         file_name, _ = QFileDialog.getOpenFileName(
             self.socket.node.scene().views()[0],
-            "选择图片文件", 
+            "选择图片文件",
             "",
             "图片文件 (*.jpg *.png *.bmp)"
         )
         if file_name:
-            self.value = file_name
+            self.value = QImage(file_name)
             self.update_display()
 
     def update_display(self):
-        if self.socket.value is not None:
-            self.pixmap = QPixmap(self.socket.value)
+        if self.socket.value is not None and isinstance(self.socket.value, QImage):
+            self.pixmap = QPixmap.fromImage(self.socket.value)
             self.setPixmap(self.pixmap)
             self.setFixedWidth(self.width)
             self.setScaledContents(True)
             # 按照图片的高宽比来重新更新self.height
-            self.height = self.width * self.pixmap.height() / self.pixmap.width()
+            self.height = self.width * self.socket.value.height() / self.socket.value.width()
             self.setFixedHeight(self.height)
         else:
             self.setText("点击选择图片")
@@ -96,4 +96,4 @@ class ImageBox(Box, QLabel):
             self.setAlignment(Qt.AlignCenter)
 
     def get_value(self):
-        return self.value
+        return self.value if isinstance(self.value, QImage) else None

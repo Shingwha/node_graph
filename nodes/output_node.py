@@ -4,7 +4,7 @@ from PySide6.QtGui import QPen, QBrush, QColor, QFont
 class NumberOutputNode(Node):
     def __init__(self):
         super().__init__(
-            title="Output",
+            title="Number Output",
             type=2001,
             input_sockets=[{"datatype": 0, "box_type": 1}],
             output_sockets=[]
@@ -18,7 +18,7 @@ class NumberOutputNode(Node):
 class ImageOutputNode(Node):
     def __init__(self):
         super().__init__(
-            title="Output",
+            title="Image Output",
             type=2002,
             input_sockets=[{"datatype": 1, "box_type": 2}],
             output_sockets=[]
