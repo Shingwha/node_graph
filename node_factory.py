@@ -1,4 +1,4 @@
-from nodes.input_node import NumberInputNode, ImageInputNode
+from nodes.input_node import NumberInputNode, ImageInputNode,TestNode
 from nodes.output_node import NumberOutputNode, ImageOutputNode
 from nodes.calculate_node import SumNode, SubtractNode, MultiplyNode, DivideNode, PowerNode, SqrtNode
 from nodes.image_processing_node import (
@@ -19,7 +19,8 @@ class NodeFactory:
     node_types = {
         "输入节点": {
             "数字": NumberInputNode,
-            "图片": ImageInputNode
+            "图片": ImageInputNode,
+            "测试": TestNode
         },
         "输出节点": {
             "数字": NumberOutputNode,

@@ -33,3 +33,18 @@ class ImageInputNode(Node):
     def run(self):
         for socket in self.output_sockets:
             socket.value = socket.box.get_value()
+
+class TestNode(Node):
+    def __init__(self):
+        super().__init__(
+            title="Test",
+            type=1003,
+            input_sockets=[],
+            output_sockets=[
+                {"datatype": 0, "box_type": 3}
+            ],
+        )
+
+    def run(self):
+        for socket in self.output_sockets:
+            socket.value = socket.box.get_value()

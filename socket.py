@@ -2,7 +2,7 @@
 from PySide6.QtWidgets import QGraphicsItem
 from PySide6.QtCore import QRectF, Qt, Signal
 from PySide6.QtGui import QBrush, QPen, QColor
-from box import LineEditBox,ImageBox
+from box import LineEditBox,ImageBox,SliderBox
 
 class Socket(QGraphicsItem):
     
@@ -66,6 +66,9 @@ class Socket(QGraphicsItem):
             
         if self.box_type == 2:
             self.box = ImageBox(socket=self)
+        
+        if self.box_type == 3:
+            self.box = SliderBox(socket=self)
 
     def boundingRect(self):
         return QRectF(

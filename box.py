@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QLineEdit, QGraphicsProxyWidget, QWidget,QLabel
+from PySide6.QtWidgets import QLineEdit, QGraphicsProxyWidget, QWidget,QLabel, QSlider,QFileDialog
 from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
 
@@ -12,7 +12,7 @@ class Box():
         self.position_x = 0
         self.position_y = 0
         self.proxy = None
-        # self.initUI()
+
         
     def initUI(self):
 
@@ -50,7 +50,6 @@ class LineEditBox(Box, QLineEdit):
         except ValueError:
             return None
 
-from PySide6.QtWidgets import QFileDialog
 
 # 添加一个图片组件
 class ImageBox(Box, QLabel):
@@ -124,3 +123,51 @@ class ImageBox(Box, QLabel):
         self.pixmap = None
         self.update_display()
         self.socket.node.update_display()
+
+class SliderBox(Box, QSlider):
+    def __init__(self, socket):
+        super().__init__(socket=socket)
+        self.setOrientation(Qt.Horizontal)
+        self.setMinimum(0)
+        self.setMaximum(100)
+        self.setSingleStep(1)
+        self.setValue(0)
+        self.valueChanged.connect(self.on_value_changed)
+        
+
+    def initUI(self):
+        super().initUI()
+        self.setStyleSheet("""
+            QSlider {
+                background: rgba(70, 70, 70, 0.4);
+                height: 4px;
+                border-radius: 2px;
+            }
+            QSlider::groove:horizontal {
+                background: rgba(200, 200, 200, 0.2);
+                height: 4px;
+                border-radius: 2px;
+            }
+            QSlider::handle:horizontal {
+                background: white;
+                width: 12px;
+                height: 12px;
+                margin: -4px 0;
+                border-radius: 6px;
+            }
+        """)
+        
+
+    def update_display(self):
+        if self.socket.value is not None:
+            self.setValue(int(self.socket.value))
+        else:
+            self.setValue(0)
+        return
+
+    def get_value(self):
+        return super().value()
+
+    def on_value_changed(self, value):
+        self.socket.value = value
+
