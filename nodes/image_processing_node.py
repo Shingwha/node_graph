@@ -101,14 +101,17 @@ class BrightnessNode(Node):
             type=4003,
             input_sockets=[
                 {"datatype": 1},  # 输入图片
-                {"datatype": 0, "box_type": 1}  # 亮度调整值 (-100到100)
+                {"datatype": 0, "box_type": 3}  # 亮度调整值 (-100到100)
             ],
             output_sockets=[{"datatype": 1}]  # 输出调整后的图片
         )
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
-        self.input_sockets[1].box.setPlaceholderText("亮度, -100-100")
+        # self.input_sockets[1].box.setPlaceholderText("亮度, -100-100")
+        self.input_sockets[1].box.setMinimum(-100)
+        self.input_sockets[1].box.setMaximum(100)
+        self.input_sockets[1].box.setSingleStep(1)
 
     def run(self):
         """调整图像亮度"""

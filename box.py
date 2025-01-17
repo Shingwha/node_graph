@@ -1,4 +1,6 @@
-from PySide6.QtWidgets import QLineEdit, QGraphicsProxyWidget, QWidget,QLabel, QSlider,QFileDialog
+from PySide6.QtWidgets import (QLineEdit, QGraphicsProxyWidget, QWidget,
+                              QLabel, QSlider, QFileDialog, QStyle, QStyleOptionSlider)
+from PySide6.QtCore import QTimer
 from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
 
@@ -137,6 +139,7 @@ class SliderBox(Box, QSlider):
 
     def initUI(self):
         super().initUI()
+        
         self.setStyleSheet("""
             QSlider {
                 background: rgba(70, 70, 70, 0.4);
