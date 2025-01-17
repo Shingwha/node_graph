@@ -130,7 +130,7 @@ class SliderBox(Box, QSlider):
     def __init__(self, socket):
         super().__init__(socket=socket)
         self.setOrientation(Qt.Horizontal)
-        self.setMinimum(0)
+        self.setMinimum(-100)
         self.setMaximum(100)
         self.setSingleStep(1)
         self.setValue(0)

@@ -109,9 +109,6 @@ class BrightnessNode(Node):
         self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
         # self.input_sockets[1].box.setPlaceholderText("亮度, -100-100")
-        self.input_sockets[1].box.setMinimum(-100)
-        self.input_sockets[1].box.setMaximum(100)
-        self.input_sockets[1].box.setSingleStep(1)
 
     def run(self):
         """调整图像亮度"""
@@ -190,14 +187,15 @@ class ContrastNode(Node):
             type=4005,
             input_sockets=[
                 {"datatype": 1},  # 输入图片
-                {"datatype": 0, "box_type": 1}  # 对比度调整值 (-100到100)
+                {"datatype": 0, "box_type": 3}  # 对比度调整值 (-100到100)
             ],
             output_sockets=[{"datatype": 1}]  # 输出调整后的图片
         )
         self.pen_default = QPen(QColor("#cc6666"))
         self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
-        self.input_sockets[1].box.setPlaceholderText("对比度-100-100")
+        # self.input_sockets[1].box.setPlaceholderText("对比度-100-100")
+        
 
     def run(self):
         """调整图像对比度"""
@@ -319,7 +317,7 @@ class CropNode(Node):
 class ImageOverlayNode(Node):
     def __init__(self):
         super().__init__(
-            title="图片叠加",
+            title="Image Overlay",
             type=4008,
             input_sockets=[
                 {"datatype": 1},  # 输入图片1
@@ -368,7 +366,7 @@ class ImageOverlayNode(Node):
 class ImageSizeNode(Node):
     def __init__(self):
         super().__init__(
-            title="图片尺寸",
+            title="Image Size",
             type=4009,
             input_sockets=[{"datatype": 1}],  # 输入图片
             output_sockets=[
