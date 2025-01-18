@@ -25,10 +25,6 @@ class ImageInputNode(Node):
                 ],
         )
         self.height = 110
-        # 设置线条，标题背景深一点
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
-        # self.output_sockets[0].box.value = "dog.jpg"
 
     def run(self):
         for socket in self.output_sockets:

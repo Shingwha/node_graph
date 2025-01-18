@@ -396,26 +396,17 @@ class RGBSplitNode(Node):
 
         # 将QImage转换为OpenCV Mat
         mat = qimage_to_mat(input_image)
-        
         # 分离通道
         b, g, r = cv2.split(mat)
-        
         # 创建单通道图像
         zeros = np.zeros(mat.shape[:2], dtype="uint8")
-        
-        # 生成R通道图像
         r_img = cv2.merge([zeros, zeros, r])
-        # 生成G通道图像
         g_img = cv2.merge([zeros, g, zeros])
-        # 生成B通道图像
         b_img = cv2.merge([b, zeros, zeros])
-        
         # 转换为QImage
         r_qimg = mat_to_qimage(r_img)
         g_qimg = mat_to_qimage(g_img)
         b_qimg = mat_to_qimage(b_img)
-        
-        # 设置输出
         self.output_sockets[0].value = r_qimg
         self.output_sockets[1].value = g_qimg
         self.output_sockets[2].value = b_qimg

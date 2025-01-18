@@ -5,7 +5,7 @@ class NumberOutputNode(Node):
     def __init__(self):
         super().__init__(
             title="Number Output",
-            type=2001,
+            type=1002,
             input_sockets=[{"datatype": 0, "box_type": 1}],
             output_sockets=[]
         )
@@ -24,8 +24,6 @@ class ImageOutputNode(Node):
             output_sockets=[]
         )
     
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
 
     def run(self):
         """处理输入值并显示"""
