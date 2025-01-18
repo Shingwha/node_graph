@@ -2,7 +2,7 @@
 from PySide6.QtWidgets import QGraphicsItem,QGraphicsProxyWidget,QGraphicsTextItem,QLineEdit
 from PySide6.QtCore import QRectF, Qt, QPointF, QRegularExpression
 from PySide6.QtGui import QBrush, QPen, QColor, QPainterPath, QFont,QRegularExpressionValidator
-from socket import Socket
+from node_socket import Socket
 INPUT = 0
 OUTPUT = 1
 

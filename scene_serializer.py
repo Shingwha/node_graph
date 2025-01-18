@@ -4,7 +4,6 @@ from PySide6.QtCore import QPointF
 from scene import Scene
 from node import Node
 from edge import Edge
-from socket import Socket
 
 class SceneSerializer:
     @staticmethod

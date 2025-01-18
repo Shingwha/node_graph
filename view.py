@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QGraphicsView, QMenu
 from PySide6.QtGui import QPainter, QMouseEvent
 from PySide6.QtCore import Qt
-from socket import Socket
+from node_socket import Socket
 from edge import Edge
 from node import Node
 from graph import Graph
