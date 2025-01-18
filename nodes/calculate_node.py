@@ -1,10 +1,11 @@
 from node import Node
+import logging
 
 class SumNode(Node):
     def __init__(self):
         super().__init__(
             title="Sum",
-            type=3001,
+            type=1101,  # 加法
             input_sockets=[
                 {"datatype": 0, "box_type": 1},
                 {"datatype": 0, "box_type": 1}
@@ -16,17 +17,18 @@ class SumNode(Node):
         """计算所有输入值的和"""
         try:
             self.output_sockets[0].value = sum(
-                socket.value if socket.value is not None else 0
+                getattr(socket, 'value', 0)
                 for socket in self.input_sockets
             )
-        except ValueError:
+        except ValueError as e:
+            logging.error(f"SumNode calculation error: {e}")
             self.output_sockets[0].value = None
 
 class SubtractNode(Node):
     def __init__(self):
         super().__init__(
             title="Subtract",
-            type=3002,
+            type=1102,  # 减法
             input_sockets=[
                 {"datatype": 0, "box_type": 1},
                 {"datatype": 0, "box_type": 1}
@@ -37,17 +39,18 @@ class SubtractNode(Node):
     def run(self):
         """计算两个输入值的差"""
         try:
-            a = self.input_sockets[0].value if self.input_sockets[0].value is not None else 0
-            b = self.input_sockets[1].value if self.input_sockets[1].value is not None else 0
+            a = getattr(self.input_sockets[0], 'value', 0)
+            b = getattr(self.input_sockets[1], 'value', 0)
             self.output_sockets[0].value = a - b
-        except ValueError:
+        except ValueError as e:
+            logging.error(f"SubtractNode calculation error: {e}")
             self.output_sockets[0].value = None
 
 class MultiplyNode(Node):
     def __init__(self):
         super().__init__(
             title="Multiply",
-            type=3003,
+            type=1103,  # 乘法
             input_sockets=[
                 {"datatype": 0, "box_type": 1},
                 {"datatype": 0, "box_type": 1}
@@ -58,17 +61,18 @@ class MultiplyNode(Node):
     def run(self):
         """计算两个输入值的乘积"""
         try:
-            a = self.input_sockets[0].value if self.input_sockets[0].value is not None else 1
-            b = self.input_sockets[1].value if self.input_sockets[1].value is not None else 1
+            a = getattr(self.input_sockets[0], 'value', 1)
+            b = getattr(self.input_sockets[1], 'value', 1)
             self.output_sockets[0].value = a * b
-        except ValueError:
+        except ValueError as e:
+            logging.error(f"MultiplyNode calculation error: {e}")
             self.output_sockets[0].value = None
 
 class DivideNode(Node):
     def __init__(self):
         super().__init__(
             title="Divide",
-            type=3004,
+            type=1104,  # 除法
             input_sockets=[
                 {"datatype": 0, "box_type": 1},
                 {"datatype": 0, "box_type": 1}
@@ -79,17 +83,18 @@ class DivideNode(Node):
     def run(self):
         """计算两个输入值的商"""
         try:
-            a = self.input_sockets[0].value if self.input_sockets[0].value is not None else 0
-            b = self.input_sockets[1].value if self.input_sockets[1].value is not None else 1
+            a = getattr(self.input_sockets[0], 'value', 0)
+            b = getattr(self.input_sockets[1], 'value', 1)
             self.output_sockets[0].value = a / b if b != 0 else None
-        except ValueError:
+        except ValueError as e:
+            logging.error(f"DivideNode calculation error: {e}")
             self.output_sockets[0].value = None
 
 class PowerNode(Node):
     def __init__(self):
         super().__init__(
             title="Power",
-            type=3005,
+            type=1105,  # 幂运算
             input_sockets=[
                 {"datatype": 0, "box_type": 1},
                 {"datatype": 0, "box_type": 1}
@@ -100,17 +105,18 @@ class PowerNode(Node):
     def run(self):
         """计算幂运算"""
         try:
-            base = self.input_sockets[0].value if self.input_sockets[0].value is not None else 0
-            exponent = self.input_sockets[1].value if self.input_sockets[1].value is not None else 1
+            base = getattr(self.input_sockets[0], 'value', 0)
+            exponent = getattr(self.input_sockets[1], 'value', 1)
             self.output_sockets[0].value = base ** exponent
-        except ValueError:
+        except ValueError as e:
+            logging.error(f"PowerNode calculation error: {e}")
             self.output_sockets[0].value = None
 
 class SqrtNode(Node):
     def __init__(self):
         super().__init__(
             title="Sqrt",
-            type=3006,
+            type=1106,  # 平方根
             input_sockets=[{"datatype": 0, "box_type": 1}],
             output_sockets=[{"datatype": 0}]
         )
@@ -118,7 +124,8 @@ class SqrtNode(Node):
     def run(self):
         """计算平方根"""
         try:
-            value = self.input_sockets[0].value if self.input_sockets[0].value is not None else 0
+            value = getattr(self.input_sockets[0], 'value', 0)
             self.output_sockets[0].value = value ** 0.5 if value >= 0 else None
-        except ValueError:
+        except ValueError as e:
+            logging.error(f"SqrtNode calculation error: {e}")
             self.output_sockets[0].value = None

@@ -35,14 +35,12 @@ class GrayscaleNode(Node):
     def __init__(self):
         super().__init__(
             title="Grayscale",
-            type=4001,
+            type=2101,  # 灰度转换
             input_sockets=[
                 {"datatype": 1}  # 输入图片
             ],
             output_sockets=[{"datatype": 1}]  # 输出灰度图片
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
 
     def run(self):
         """将彩色图像转换为灰度图像"""
@@ -61,15 +59,13 @@ class FlipNode(Node):
     def __init__(self):
         super().__init__(
             title="Flip",
-            type=4002,
+            type=2102,  # 图像翻转
             input_sockets=[
                 {"datatype": 1},  # 输入图片
                 {"datatype": 0, "box_type": 1}   # 翻转方向 (0:水平, 1:垂直)
             ],
             output_sockets=[{"datatype": 1}]
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
         self.input_sockets[1].box.setPlaceholderText("0:水平, 1:垂直")
 
@@ -98,15 +94,13 @@ class BrightnessNode(Node):
     def __init__(self):
         super().__init__(
             title="Brightness",
-            type=4003,
+            type=2103,  # 亮度调整
             input_sockets=[
                 {"datatype": 1},  # 输入图片
                 {"datatype": 0, "box_type": 3}  # 亮度调整值 (-100到100)
             ],
             output_sockets=[{"datatype": 1}]  # 输出调整后的图片
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
         # self.input_sockets[1].box.setPlaceholderText("亮度, -100-100")
 
@@ -135,15 +129,13 @@ class RotateNode(Node):
     def __init__(self):
         super().__init__(
             title="Rotate",
-            type=4004,
+            type=2104,  # 图像旋转
             input_sockets=[
                 {"datatype": 1},  # 输入图片
                 {"datatype": 0, "box_type": 1}  # 旋转角度 (0-360)
             ],
             output_sockets=[{"datatype": 1}]  # 输出旋转后的图片
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
         self.input_sockets[1].box.setPlaceholderText("旋转角度 (0-360)")
 
@@ -184,15 +176,13 @@ class ContrastNode(Node):
     def __init__(self):
         super().__init__(
             title="Contrast",
-            type=4005,
+            type=2105,  # 对比度调整
             input_sockets=[
                 {"datatype": 1},  # 输入图片
                 {"datatype": 0, "box_type": 3}  # 对比度调整值 (-100到100)
             ],
             output_sockets=[{"datatype": 1}]  # 输出调整后的图片
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
         # self.input_sockets[1].box.setPlaceholderText("对比度-100-100")
         
@@ -226,7 +216,7 @@ class ScaleNode(Node):
     def __init__(self):
         super().__init__(
             title="Scale",
-            type=4006,
+            type=2106,  # 图像缩放
             input_sockets=[
                 {"datatype": 1},  # 输入图片
                 {"datatype": 0, "box_type": 1},  # 宽度比例
@@ -234,8 +224,6 @@ class ScaleNode(Node):
             ],
             output_sockets=[{"datatype": 1}]  # 输出缩放后的图片
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
         self.input_sockets[1].box.setPlaceholderText("宽度 0-10.0")
         self.input_sockets[2].box.setPlaceholderText("高度 0-10.0")
@@ -270,7 +258,7 @@ class CropNode(Node):
     def __init__(self):
         super().__init__(
             title="Crop",
-            type=4007,
+            type=2107,  # 图像裁剪
             input_sockets=[
                 {"datatype": 1},  # 输入图片
                 {"datatype": 0, "box_type": 1},  # x坐标
@@ -280,8 +268,6 @@ class CropNode(Node):
             ],
             output_sockets=[{"datatype": 1}]  # 输出裁剪后的图片
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
         self.input_sockets[1].box.setPlaceholderText("x, 0-图片宽度")
         self.input_sockets[2].box.setPlaceholderText("y, 0-图片高度")
@@ -318,7 +304,7 @@ class ImageOverlayNode(Node):
     def __init__(self):
         super().__init__(
             title="Image Overlay",
-            type=4008,
+            type=2108,  # 图像叠加
             input_sockets=[
                 {"datatype": 1},  # 输入图片1
                 {"datatype": 1},  # 输入图片2
@@ -326,8 +312,6 @@ class ImageOverlayNode(Node):
             ],
             output_sockets=[{"datatype": 1}]  # 输出叠加后的图片
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
         # 设置输入框的placeholderText
         self.input_sockets[2].box.setPlaceholderText("透明度 0-1")
 
@@ -367,15 +351,13 @@ class ImageSizeNode(Node):
     def __init__(self):
         super().__init__(
             title="Image Size",
-            type=4009,
+            type=2109,  # 图像尺寸
             input_sockets=[{"datatype": 1}],  # 输入图片
             output_sockets=[
                 {"datatype": 0, "box_type": 1},  # 宽度
                 {"datatype": 0, "box_type": 1}   # 高度
             ]
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
         
     def run(self):
         input_image = self.input_sockets[0].value
@@ -394,7 +376,7 @@ class RGBSplitNode(Node):
     def __init__(self):
         super().__init__(
             title="RGB分离",
-            type=4010,
+            type=2110,  # RGB分离
             input_sockets=[{"datatype": 1}],  # 输入图片
             output_sockets=[
                 {"datatype": 1},  # R通道
@@ -402,8 +384,6 @@ class RGBSplitNode(Node):
                 {"datatype": 1}   # B通道
             ]
         )
-        self.pen_default = QPen(QColor("#cc6666"))
-        self.brush_title = QBrush(QColor("#c36060"))
 
     def run(self):
         """将输入图片分离为R、G、B三个通道"""

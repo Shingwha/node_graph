@@ -5,7 +5,7 @@ class NumberInputNode(Node):
     def __init__(self):
         super().__init__(
             title="Input",
-            type=1001,
+            type=1001,  # 数字输入
             input_sockets=[],
             output_sockets=[{"datatype": 0, "box_type": 1}],
         )
@@ -18,7 +18,7 @@ class ImageInputNode(Node):
     def __init__(self):
         super().__init__(
             title="Image Input",
-            type=1002,
+            type=2001,  # 图像输入
             input_sockets=[],
             output_sockets=[
                 {"datatype": 1, "box_type": 2}
@@ -38,7 +38,7 @@ class TestNode(Node):
     def __init__(self):
         super().__init__(
             title="Test",
-            type=1003,
+            type=1002,  # 测试输入
             input_sockets=[],
             output_sockets=[
                 {"datatype": 0, "box_type": 3}

@@ -30,16 +30,11 @@ class Node(QGraphicsItem):
         self.width = 120
         self.edge_size = 3
         self.spacing = 0.07*self.width
-    
-        self.pen_default = QPen(QColor("#50B780"))
-        self.pen_selected = QPen(QColor("#F2E383"))
-        self.brush_title = QBrush(QColor("#1F7D6B"))
-        self.brush_title.color().setAlphaF(self.opacity)
-        self.brush_background = QBrush(QColor("#2a2a2a"))
-        self.brush_background.color().setAlphaF(self.opacity)
+        self.type = type
+        self.initColor()
 
         self.title = title
-        self.type = type
+
 
         self.input_sockets = []
         self.output_sockets = []
@@ -56,6 +51,20 @@ class Node(QGraphicsItem):
     @height.setter
     def height(self, value):
         self._height = value
+
+    def initColor(self):
+        """根据节点类型设置颜色"""
+        if 2000 < self.type < 2199:  # 图像处理节点
+            self.pen_default = QPen(QColor("#cc6666"))
+            self.pen_selected = QPen(QColor("#F2E383"))
+            self.brush_title = QBrush(QColor("#c36060"))
+        else:  # 默认颜色
+            self.pen_default = QPen(QColor("#50B780"))
+            self.pen_selected = QPen(QColor("#F2E383"))
+            self.brush_title = QBrush(QColor("#1F7D6B"))
+        self.brush_title.color().setAlphaF(self.opacity)
+        self.brush_background = QBrush(QColor("#2a2a2a"))
+        self.brush_background.color().setAlphaF(self.opacity)
 
     def initUI(self):
         self.setFlag(QGraphicsItem.ItemIsMovable)
