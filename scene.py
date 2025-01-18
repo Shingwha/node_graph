@@ -4,10 +4,11 @@ from PySide6.QtCore import QLine
 import math
 
 class Scene(QGraphicsScene):
-    def __init__(self,scene,parent=None):
+    def __init__(self, scene, node_factory, parent=None):
         super().__init__()
 
         self.scene = scene
+        self.node_factory = node_factory
         self.background_color = QColor('#212121')
         self.grid_color = QColor('#313131')
         self.grid_size = 30

@@ -1,4 +1,4 @@
-from nodes.input_node import NumberInputNode, ImageInputNode,TestNode
+from nodes.input_node import NumberInputNode, ImageInputNode, TestNode
 from nodes.output_node import NumberOutputNode, ImageOutputNode
 from nodes.calculate_node import SumNode, SubtractNode, MultiplyNode, DivideNode, PowerNode, SqrtNode
 from nodes.image_processing_node import (
@@ -15,70 +15,65 @@ from nodes.image_processing_node import (
 )
 
 class NodeFactory:
-    # 分组节点类型映射
-    node_types = {
-        "输入节点": {
-            "数字": NumberInputNode,
-            "图片": ImageInputNode,
-            "测试": TestNode
-        },
-        "输出节点": {
-            "数字": NumberOutputNode,
-            "图片": ImageOutputNode
-        },
-        "计算节点": {
-            "加法": SumNode,
-            "减法": SubtractNode,
-            "乘法": MultiplyNode,
-            "除法": DivideNode,
-            "幂运算": PowerNode,
-            "平方根": SqrtNode
-        },
-        "图像处理": {
-            "灰度化": GrayscaleNode,
-            "翻转": FlipNode,
-            "亮度调整": BrightnessNode,
-            "旋转": RotateNode,
-            "对比度调整": ContrastNode,
-            "缩放": ScaleNode,
-            "裁剪": CropNode,
-            "图片叠加": ImageOverlayNode,
-            "图片尺寸": ImageSizeNode,
-            "RGB分离": RGBSplitNode
-        }
+    # 根据type值映射节点类
+    node_type_map = {
+        # 输入节点
+        1001: NumberInputNode,
+        2001: ImageInputNode,
+        1003: TestNode,
+        
+        # 输出节点
+        1002: NumberOutputNode,
+        2002: ImageOutputNode,
+        
+        # 计算节点
+        1101: SumNode,
+        1102: SubtractNode,
+        1103: MultiplyNode,
+        1104: DivideNode,
+        1105: PowerNode,
+        1106: SqrtNode,
+        
+        # 图像处理节点
+        2101: GrayscaleNode,
+        2102: FlipNode,
+        2103: BrightnessNode,
+        2104: RotateNode,
+        2105: ContrastNode,
+        2106: ScaleNode,
+        2107: CropNode,
+        2108: ImageOverlayNode,
+        2109: ImageSizeNode,
+        2110: RGBSplitNode
     }
 
     @staticmethod
-    def find_node_class(node_types, node_type):
-        """递归查找节点类，支持带斜杠的路径格式"""
-        # 如果包含斜杠，先分割路径
-        if '/' in node_type:
-            parts = node_type.split('/')
-            current = node_types
-            # 遍历路径的每一部分
-            for part in parts[:-1]:
-                if part in current and isinstance(current[part], dict):
-                    current = current[part]
-                else:
-                    return None
-            # 最后一部分是实际的节点类型
-            node_type = parts[-1]
-            return current.get(node_type) if node_type in current else None
-        
-        # 如果不包含斜杠，保持原有逻辑
-        for name, value in node_types.items():
-            if name == node_type and not isinstance(value, dict):
-                return value
-            elif isinstance(value, dict):
-                result = NodeFactory.find_node_class(value, node_type)
-                if result:
-                    return result
-        return None
+    def create_node(node_type, **kwargs):
+        """根据node.type创建节点"""
+        if node_type in NodeFactory.node_type_map:
+            return NodeFactory.node_type_map[node_type](**kwargs)
+        raise ValueError(f"未知的节点类型: {node_type}")
 
     @staticmethod
-    def create_node(node_type, **kwargs):
-        node_class = NodeFactory.find_node_class(NodeFactory.node_types, node_type)
-        if node_class:
-            return node_class(**kwargs)
-        else:
-            raise ValueError(f"未知的节点类型: {node_type}")
+    def get_node_groups():
+        """获取按类型分组的节点"""
+        groups = {
+            "输入节点": [],
+            "输出节点": [],
+            "计算节点": [],
+            "图像处理节点": []
+        }
+        
+        # 分类节点
+        for type_id, node_class in NodeFactory.node_type_map.items():
+            if 1100 <= type_id < 1200:
+                groups["计算节点"].append((type_id, node_class))
+            elif 2100 <= type_id < 2200:
+                groups["图像处理节点"].append((type_id, node_class))
+            # 余数为1为输入节点，2为输出节点
+            elif type_id % 100 == 1:
+                groups["输入节点"].append((type_id, node_class))
+            elif type_id % 100 == 2:
+                groups["输出节点"].append((type_id, node_class))
+                
+        return groups

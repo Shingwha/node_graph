@@ -1,0 +1,39 @@
+{
+    "nodes": [
+        {
+            "type": 2001,
+            "position": {
+                "x": 5.0,
+                "y": -152.0
+            },
+            "input_socket_count": 0,
+            "output_socket_count": 1
+        },
+        {
+            "type": 1001,
+            "position": {
+                "x": -163.0,
+                "y": -38.0
+            },
+            "input_socket_count": 0,
+            "output_socket_count": 1
+        },
+        {
+            "type": 2002,
+            "position": {
+                "x": -10.0,
+                "y": 51.0
+            },
+            "input_socket_count": 1,
+            "output_socket_count": 0
+        }
+    ],
+    "edges": [
+        {
+            "start_node": 0,
+            "start_socket": 0,
+            "end_node": 2,
+            "end_socket": 0
+        }
+    ]
+}

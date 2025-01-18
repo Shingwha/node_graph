@@ -260,24 +260,39 @@ class View(QGraphicsView):
             
             # 递归创建菜单项
             def create_menu_items(menu, node_types):
-                for name, value in node_types.items():
-                    if isinstance(value, dict):
-                        # 如果是字典，创建子菜单
-                        sub_menu = menu.addMenu(name)
-                        create_menu_items(sub_menu, value)
-                    else:
-                        # 如果是节点类，创建菜单项
-                        action = menu.addAction(f"{name}")
-                        # 对于叶子节点，传递完整的节点类型路径
-                        if not isinstance(value, dict):
-                            # 获取父菜单的文本作为分组名称
-                            parent_text = menu.title() if menu.title() else ""
-                            action.node_type = f"{parent_text}/{name}" if parent_text else name
-                        else:
-                            action.node_type = name
+                # 按节点类型分组
+                groups = {
+                    "输入节点": [],
+                    "输出节点": [],
+                    "计算节点": [],
+                    "图像处理节点": []
+                }
+                
+                # 分类节点
+                for type_id, node_class in node_types.items():
+                    if 1100 <= type_id < 1200:
+                        groups["计算节点"].append((type_id, node_class))
+                    elif 2100 <= type_id < 2200:
+                        groups["图像处理节点"].append((type_id, node_class))
+                    # 余数为1为输入节点，2为输出节点
+                    elif type_id % 100 == 1:
+                        groups["输入节点"].append((type_id, node_class))
+                    elif type_id % 100 == 2:
+                        groups["输出节点"].append((type_id, node_class))
+                    
+                
+                # 创建分组菜单
+                for group_name, nodes in groups.items():
+                    if nodes:
+                        sub_menu = menu.addMenu(group_name)
+                        for type_id, node_class in nodes:
+                            # 使用节点类的title属性，如果没有则使用类名
+                            node_title = getattr(node_class, 'title', node_class.__name__)
+                            action = sub_menu.addAction(f"{node_title}")
+                            action.node_type = type_id
             
             # 创建主菜单
-            create_menu_items(menu, self.node_factory.node_types)
+            create_menu_items(menu, self.node_factory.node_type_map)
             
             # 显示菜单并获取选择
             action = menu.exec_(self.mapToGlobal(event.pos()))
