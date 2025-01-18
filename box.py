@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QLineEdit, QGraphicsProxyWidget, QWidget,
-                              QLabel, QSlider, QFileDialog, QStyle, QStyleOptionSlider)
+                              QLabel, QSlider, QFileDialog, QStyle, QStyleOptionSlider, QMenu)
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
@@ -61,24 +61,17 @@ class ImageBox(Box, QLabel):
         self.value = None
         self.pixmap = None
         
-        # 添加删除按钮
-        self.delete_button = QLabel(self)
-        self.delete_button.setText("×")
-        self.delete_button.setStyleSheet("""
-            color: white;
-            font-size: 8px;
-            background-color: rgba(70, 30, 30, 0.8);
-            opacity: 0.8;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 2px 6px;
-            
-        """)
-        self.delete_button.setFixedSize(14, 14)
-        self.delete_button.move(self.width - self.delete_button.width(), 0)
-        self.delete_button.mousePressEvent = self.delete_image
+        # 初始化右键菜单
+        self.menu = QMenu(self)
+        delete_action = self.menu.addAction("删除图片")
+        delete_action.triggered.connect(self.delete_image)
+        save_action = self.menu.addAction("保存图片")
+        save_action.triggered.connect(self.save_image)
         
         self.update_display()
         self.setMouseTracking(True)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
 
     def mousePressEvent(self, event):
         if self.pixmap is None:
@@ -114,17 +107,53 @@ class ImageBox(Box, QLabel):
             self.setText("点击选择图片")
             self.setStyleSheet("border: none; background-color: rgba(70, 70, 70, 0.4); color: white;")
             self.setAlignment(Qt.AlignCenter)
-            self.delete_button.show()
 
     def get_value(self):
         return self.value if isinstance(self.value, QImage) else None
         
-    def delete_image(self, event):
+    def show_context_menu(self, pos):
+        self.menu.exec_(self.mapToGlobal(pos))
+        
+    def delete_image(self):
         self.value = None
         self.socket.value = None
         self.pixmap = None
         self.update_display()
         self.socket.node.update_display()
+        
+    def save_image(self):
+        """保存当前显示的图片到文件"""
+        if not isinstance(self.socket.value, QImage):
+            print("错误：没有可用的图片数据")
+            return False
+            
+        # 获取保存路径
+        file_name, selected_filter = QFileDialog.getSaveFileName(
+            self.socket.node.scene().views()[0],
+            "保存图片",
+            "",
+            "JPEG 图片 (*.jpg);;PNG 图片 (*.png);;BMP 图片 (*.bmp)"
+        )
+        
+        if not file_name:
+            print("保存操作已取消")
+            return False
+            
+        # 根据选择的文件类型确定格式
+        if selected_filter.startswith("JPEG"):
+            format = "JPG"
+        elif selected_filter.startswith("PNG"):
+            format = "PNG"
+        else:
+            format = "BMP"
+            
+        # 保存图片
+        if self.socket.value.save(file_name, format):
+            print(f"图片已成功保存到：{file_name}")
+            return True
+        else:
+            print(f"错误：无法保存图片到 {file_name}")
+            return False
 
 class SliderBox(Box, QSlider):
     def __init__(self, socket):
@@ -173,4 +202,3 @@ class SliderBox(Box, QSlider):
 
     def on_value_changed(self, value):
         self.socket.value = value
-
