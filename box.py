@@ -63,6 +63,22 @@ class ImageBox(Box, QLabel):
         
         # 初始化右键菜单
         self.menu = QMenu(self)
+        self.menu.setStyleSheet("""
+            QMenu {
+                background-color: #2D2D30;
+                color: #DCDCDC;
+                border-radius: 4px;
+                padding: 4px;
+                margin: 2px;
+            }
+            QMenu::item {
+                padding: 4px 8px;
+            }
+            QMenu::item:selected {
+                background-color: #3E3E40;
+                border-radius: 2px;
+            }
+        """)
         delete_action = self.menu.addAction("删除图片")
         delete_action.triggered.connect(self.delete_image)
         save_action = self.menu.addAction("保存图片")
