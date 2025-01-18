@@ -1,38 +1,45 @@
 {
     "nodes": [
         {
-            "type": 2001,
-            "position": {
-                "x": 5.0,
-                "y": -152.0
-            },
-            "input_socket_count": 0,
-            "output_socket_count": 1
-        },
-        {
             "type": 1001,
             "position": {
-                "x": -163.0,
-                "y": -38.0
-            },
-            "input_socket_count": 0,
-            "output_socket_count": 1
+                "x": -252.0,
+                "y": -46.0
+            }
         },
         {
             "type": 2002,
             "position": {
-                "x": -10.0,
-                "y": 51.0
-            },
-            "input_socket_count": 1,
-            "output_socket_count": 0
+                "x": -90.0,
+                "y": -38.0
+            }
+        },
+        {
+            "type": 2001,
+            "position": {
+                "x": -291.0,
+                "y": 71.0
+            }
+        },
+        {
+            "type": 1002,
+            "position": {
+                "x": -33.0,
+                "y": -81.0
+            }
         }
     ],
     "edges": [
         {
+            "start_node": 2,
+            "start_socket": 0,
+            "end_node": 1,
+            "end_socket": 0
+        },
+        {
             "start_node": 0,
             "start_socket": 0,
-            "end_node": 2,
+            "end_node": 3,
             "end_socket": 0
         }
     ]

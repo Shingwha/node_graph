@@ -23,8 +23,6 @@ class SceneSerializer:
                     "x": node.scenePos().x(),
                     "y": node.scenePos().y()
                 },
-                "input_socket_count": len(node.input_sockets),
-                "output_socket_count": len(node.output_sockets)
             }
             data["nodes"].append(node_data)
         
