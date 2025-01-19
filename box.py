@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import (QLineEdit, QGraphicsProxyWidget, QWidget,
-                              QLabel, QSlider, QFileDialog, QStyle, QStyleOptionSlider, QMenu)
+                              QLabel, QSlider, QFileDialog, QStyle, QStyleOptionSlider, QMenu,
+                              QDialog, QVBoxLayout)
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
@@ -81,8 +82,10 @@ class ImageBox(Box, QLabel):
         """)
         delete_action = self.menu.addAction("删除图片")
         delete_action.triggered.connect(self.delete_image)
-        save_action = self.menu.addAction("保存图片")
+        save_action = self.menu.addAction("保存图片") 
         save_action.triggered.connect(self.save_image)
+        view_action = self.menu.addAction("查看大图")
+        view_action.triggered.connect(self.view_large_image)
         
         self.update_display()
         self.setMouseTracking(True)
@@ -137,6 +140,30 @@ class ImageBox(Box, QLabel):
         self.update_display()
         self.socket.node.update_display()
         
+    def view_large_image(self):
+        """在新窗口中查看大图"""
+        if not isinstance(self.socket.value, QImage):
+            print("错误：没有可用的图片数据")
+            return
+            
+        # 创建新窗口
+        dialog = QDialog(self.socket.node.scene().views()[0])
+        dialog.setWindowTitle("查看大图")
+        dialog.setMinimumSize(800, 600)
+        
+        # 创建布局和标签
+        layout = QVBoxLayout()
+        image_label = QLabel(dialog)
+        image_label.setPixmap(QPixmap.fromImage(self.socket.value))
+        image_label.setScaledContents(True)
+        
+        # 设置布局
+        layout.addWidget(image_label)
+        dialog.setLayout(layout)
+        
+        # 显示对话框
+        dialog.exec_()
+
     def save_image(self):
         """保存当前显示的图片到文件"""
         if not isinstance(self.socket.value, QImage):
