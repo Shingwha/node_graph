@@ -81,6 +81,17 @@ class Scene(QGraphicsScene):
 
     def remove_node(self, node):
         self.nodes.remove(node)
+        for socket in node.input_sockets + node.output_sockets:
+            for edge in socket.edges:
+                self.remove_edge(edge)
+        self.removeItem(node)
 
     def remove_edge(self, edge):
-        self.edges.remove(edge)
+        if edge in self.edges:
+            self.edges.remove(edge)
+        if edge.start_socket and edge in edge.start_socket.edges:
+            edge.start_socket.edges.remove(edge)
+        if edge.end_socket and edge in edge.end_socket.edges:
+            edge.end_socket.edges.remove(edge)
+        if edge.scene():
+            self.removeItem(edge)

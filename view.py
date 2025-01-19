@@ -148,11 +148,11 @@ class View(QGraphicsView):
         # 如果end_socket是input且已有连接，先移除旧连接
         if end_socket.type == 0 and end_socket.edges:
             for edge in end_socket.edges[:]:  # 使用切片创建副本以避免修改正在迭代的列表
-                edge.remove()
+                self.scene().remove_edge(edge)
         # 如果start_socket是input且已有连接，先移除旧连接
         if start_socket.type == 0 and start_socket.edges:
             for edge in start_socket.edges[:]:  # 使用切片创建副本以避免修改正在迭代的列表
-                edge.remove()
+                self.scene().remove_edge(edge)
         # 创建新连接
         edge = Edge(start_socket, end_socket)
         self.scene().add_edge(edge)  # 将边添加到scene的edges列表中
@@ -188,8 +188,11 @@ class View(QGraphicsView):
         if event.key() == Qt.Key_Delete:
             # 删除所有选中的items
             for item in self.scene().selectedItems():
-                if isinstance(item, (Node, Edge)):
-                    item.remove()
+                if isinstance(item, Node):
+                    self.scene().remove_node(item)
+                elif isinstance(item, Edge):
+                    self.scene().remove_edge(item)
+                    
             event.accept()
         elif event.key() == Qt.Key_S:
             self.start_graph()

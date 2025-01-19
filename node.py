@@ -146,14 +146,6 @@ class Node(QGraphicsItem):
         painter.drawPath(path_outline.simplified())
 
 
-
-    def remove(self):
-        for socket in self.input_sockets + self.output_sockets:
-            for edge in socket.edges:
-                edge.remove()
-        if self.scene():
-            self.scene().removeItem(self)
-
     def reset(self):
         for socket in self.input_sockets + self.output_sockets:
             socket.reset()

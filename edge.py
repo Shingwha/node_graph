@@ -80,14 +80,6 @@ class Edge(QGraphicsPathItem):
         self.update()
 
 
-    def remove(self):
-        if self.start_socket and self in self.start_socket.edges:
-            self.start_socket.edges.remove(self)
-        if self.end_socket and self in self.end_socket.edges:
-            self.end_socket.edges.remove(self)
-        if self.scene() and self in self.scene().items():
-            self.scene().removeItem(self)
-
     def boundingRect(self):
         return self.path().boundingRect().adjusted(-5, -5, 5, 5)  # 添加一些padding以便于点击
 
