@@ -121,8 +121,11 @@ class Scene(QGraphicsScene):
         command.redo()
         self.push_command(command)
 
-    def paste_nodes(self, offset=(50, 50)):
-        """粘贴节点"""
-        command = PasteNodesCommand(self, offset)
+    def paste_nodes(self, mouse_pos):
+        """粘贴节点
+        Args:
+            mouse_pos (QPoint or tuple): 鼠标点击位置
+        """
+        command = PasteNodesCommand(self, mouse_pos)
         command.redo()
         self.push_command(command)

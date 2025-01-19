@@ -160,9 +160,12 @@ class View(QGraphicsView):
         end_socket.update()
 
     def RightButtonPress(self, event):
-        # 右键点击时显示节点创建菜单
-        self.create_nodes_menu(event)
-        return super().mousePressEvent(event)
+        item = self.itemAt(event.pos())
+        if not isinstance(item, Node):
+            # 仅在空白区域显示节点创建菜单
+            self.create_nodes_menu(event)
+            event.accept()
+            return
 
     def RightButtonRelease(self, event):
         return super().mouseReleaseEvent(event)
@@ -206,7 +209,7 @@ class View(QGraphicsView):
             event.accept()
         elif event.key() == Qt.Key_V and event.modifiers() == Qt.ControlModifier:
             # 粘贴节点
-            self.scene().paste_nodes()
+            self.scene().paste_nodes(self.mapToScene(self.mapFromGlobal(self.cursor().pos())))
             event.accept()
         else:
             super().keyPressEvent(event)
@@ -262,6 +265,31 @@ class View(QGraphicsView):
             }
         """
 
+    def create_node_context_menu(self, node):
+        """创建节点右键菜单"""
+        menu = QMenu(self)
+        menu.setStyleSheet(self.menu_style)
+        
+        # 复制
+        copy_action = menu.addAction("复制")
+        copy_action.setShortcut("Ctrl+C")
+        copy_action.triggered.connect(lambda: self.scene().copy_nodes([node]))
+        
+        # 删除
+        delete_action = menu.addAction("删除")
+        delete_action.setShortcut("Del")
+        delete_action.triggered.connect(node.remove)
+        
+        # 粘贴
+        menu.addSeparator()
+        paste_action = menu.addAction("粘贴")
+        paste_action.setShortcut("Ctrl+V")
+        paste_action.triggered.connect(lambda: self.scene().paste_nodes(
+            self.mapToScene(self.mapFromGlobal(self.cursor().pos()))
+        ))
+        
+        return menu
+
     def create_nodes_menu(self, event):
         item = self.itemAt(event.pos())
         if item is None:
@@ -305,14 +333,34 @@ class View(QGraphicsView):
             # 创建主菜单
             create_menu_items(menu, self.node_factory.node_type_map)
             
+            # 添加分隔符
+            menu.addSeparator()
+            
+            # 添加复制粘贴菜单项
+            copy_action = menu.addAction("复制")
+            copy_action.setShortcut("Ctrl+C")
+            copy_action.triggered.connect(lambda: self.scene().copy_nodes(
+                [item for item in self.scene().selectedItems() if isinstance(item, Node)]
+            ))
+            
+            paste_action = menu.addAction("粘贴")
+            paste_action.setShortcut("Ctrl+V") 
+            paste_action.triggered.connect(lambda: self.scene().paste_nodes(
+                self.mapToScene(self.mapFromGlobal(self.cursor().pos()))
+            ))
+            
             # 显示菜单并获取选择
             action = menu.exec_(self.mapToGlobal(event.pos()))
             
-            if action:
+            if action and hasattr(action, 'node_type'):
                 # 获取点击位置
                 pos = self.mapToScene(event.pos())
                 # 根据选择创建节点
                 self.create_node(action.node_type, pos)
+        elif isinstance(item, Node):
+            # 显示节点右键菜单
+            menu = self.create_node_context_menu(item)
+            menu.exec_(self.mapToGlobal(event.pos()))
         else:
             return super().mousePressEvent(event)
 
