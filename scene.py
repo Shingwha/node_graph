@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QGraphicsScene
 from PySide6.QtGui import QPainter,QColor,QBrush,QPen
 from PySide6.QtCore import QLine, Signal
 import math
-from commands import Command, AddNodeCommand, RemoveNodeCommand, AddEdgeCommand, RemoveEdgeCommand
+from commands import Command, AddNodeCommand, RemoveNodeCommand, AddEdgeCommand, RemoveEdgeCommand, CopyNodesCommand, PasteNodesCommand
 
 class Scene(QGraphicsScene):
     changed = Signal()
@@ -14,6 +14,7 @@ class Scene(QGraphicsScene):
         self.node_factory = node_factory
         self.undo_stack = []
         self.redo_stack = []
+        self.clipboard = None  # 剪贴板
         self.background_color = QColor('#212121')
         self.grid_color = QColor('#313131')
         self.grid_size = 30
@@ -70,7 +71,6 @@ class Scene(QGraphicsScene):
             else:
                 grid_lines.append(line)
 
-
         painter.setPen(self.grid_pen)
         painter.drawLines(grid_lines)
         painter.setPen(self.chunk_pen)
@@ -112,5 +112,17 @@ class Scene(QGraphicsScene):
 
     def remove_edge(self, edge):
         command = RemoveEdgeCommand(self, edge)
+        command.redo()
+        self.push_command(command)
+
+    def copy_nodes(self, nodes):
+        """复制选中的节点"""
+        command = CopyNodesCommand(self, nodes)
+        command.redo()
+        self.push_command(command)
+
+    def paste_nodes(self, offset=(50, 50)):
+        """粘贴节点"""
+        command = PasteNodesCommand(self, offset)
         command.redo()
         self.push_command(command)

@@ -197,6 +197,17 @@ class View(QGraphicsView):
         elif event.key() == Qt.Key_P:
             self.stop_graph()
             event.accept()
+        elif event.key() == Qt.Key_C and event.modifiers() == Qt.ControlModifier:
+            # 复制选中节点
+            selected_nodes = [item for item in self.scene().selectedItems() 
+                           if isinstance(item, Node)]
+            if selected_nodes:
+                self.scene().copy_nodes(selected_nodes)
+            event.accept()
+        elif event.key() == Qt.Key_V and event.modifiers() == Qt.ControlModifier:
+            # 粘贴节点
+            self.scene().paste_nodes()
+            event.accept()
         else:
             super().keyPressEvent(event)
             
