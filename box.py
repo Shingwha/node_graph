@@ -117,20 +117,17 @@ class ImageBox(Box, QLabel):
             self.dialog.setStyleSheet("""
                 QDialog {
                     background-color: #2D2D30;
-                    color: #DCDCDC;
-                    border-radius: 4px;
-                    padding: 8px;
+                    border: 1px solid #3F3F46;
+                    padding: 5px;
+                    border-radius: 7px;
                 }
                 QPushButton {
-                    background-color: #3E3E40;
                     color: #DCDCDC;
-                    border-radius: 2px;
-                    padding: 4px 8px;
-                    min-width: 80px;
-                    margin: 2px;
+                    padding: 5px;
+                    border-radius: 4px;
                 }
                 QPushButton:hover {
-                    background-color: #4E4E50;
+                    background-color: #3E3E40;
                 }
             """)
             
