@@ -16,9 +16,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Node Editor")
         self.setGeometry(100, 100, 800, 600)
         
-        # 创建菜单栏
-        self.create_menus()
-        
         # 创建中央widget
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
@@ -34,6 +31,10 @@ class MainWindow(QMainWindow):
         # 创建view
         self.view = View(self.scene)
         self.layout.addWidget(self.view)
+        
+        # 创建菜单栏
+        self.create_menus()
+        
         self.show()
 
     def create_menus(self):
@@ -52,6 +53,31 @@ class MainWindow(QMainWindow):
         export_action = QAction('导出', self)
         export_action.triggered.connect(self.export_scene)
         file_menu.addAction(export_action)
+
+        # 编辑菜单
+        edit_menu = menubar.addMenu('编辑')
+        
+        # Undo
+        self.undo_action = QAction('撤销', self)
+        self.undo_action.setShortcut('Ctrl+Z')
+        self.undo_action.triggered.connect(self.scene.undo)
+        self.undo_action.setEnabled(False)
+        edit_menu.addAction(self.undo_action)
+        
+        # Redo
+        self.redo_action = QAction('重做', self)
+        self.redo_action.setShortcut('Ctrl+Y')
+        self.redo_action.triggered.connect(self.scene.redo)
+        self.redo_action.setEnabled(False)
+        edit_menu.addAction(self.redo_action)
+
+        # 连接场景变化信号
+        self.scene.changed.connect(self.update_edit_menu)
+
+    def update_edit_menu(self):
+        """更新编辑菜单项状态"""
+        self.undo_action.setEnabled(len(self.scene.undo_stack) > 0)
+        self.redo_action.setEnabled(len(self.scene.redo_stack) > 0)
 
     def import_scene(self):
         """导入场景"""

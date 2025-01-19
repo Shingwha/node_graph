@@ -1,14 +1,19 @@
 from PySide6.QtWidgets import QGraphicsScene
 from PySide6.QtGui import QPainter,QColor,QBrush,QPen
-from PySide6.QtCore import QLine
+from PySide6.QtCore import QLine, Signal
 import math
+from commands import Command, AddNodeCommand, RemoveNodeCommand, AddEdgeCommand, RemoveEdgeCommand
 
 class Scene(QGraphicsScene):
+    changed = Signal()
+
     def __init__(self, scene, node_factory, parent=None):
         super().__init__()
 
         self.scene = scene
         self.node_factory = node_factory
+        self.undo_stack = []
+        self.redo_stack = []
         self.background_color = QColor('#212121')
         self.grid_color = QColor('#313131')
         self.grid_size = 30
@@ -71,16 +76,41 @@ class Scene(QGraphicsScene):
         painter.setPen(self.chunk_pen)
         painter.drawLines(chunk_lines)
 
+    def push_command(self, command):
+        self.undo_stack.append(command)
+        self.redo_stack.clear()
+        self.changed.emit()
+
+    def undo(self):
+        if self.undo_stack:
+            command = self.undo_stack.pop()
+            command.undo()
+            self.redo_stack.append(command)
+            self.changed.emit()
+
+    def redo(self):
+        if self.redo_stack:
+            command = self.redo_stack.pop()
+            command.redo()
+            self.undo_stack.append(command)
+            self.changed.emit()
+
     def add_node(self, node):
-        self.nodes.append(node)
-        self.addItem(node)
+        command = AddNodeCommand(self, node)
+        command.redo()
+        self.push_command(command)
 
     def add_edge(self, edge):
-        self.edges.append(edge)
-        self.addItem(edge)
+        command = AddEdgeCommand(self, edge)
+        command.redo()
+        self.push_command(command)
 
     def remove_node(self, node):
-        self.nodes.remove(node)
+        command = RemoveNodeCommand(self, node)
+        command.redo()
+        self.push_command(command)
 
     def remove_edge(self, edge):
-        self.edges.remove(edge)
+        command = RemoveEdgeCommand(self, edge)
+        command.redo()
+        self.push_command(command)

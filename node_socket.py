@@ -104,3 +104,15 @@ class Socket(QGraphicsItem):
 
     def has_edge(self):
         return len(self.edges) > 0
+
+    def add_edge(self, edge):
+        """添加edge到socket的连接列表"""
+        if edge not in self.edges:
+            self.edges.append(edge)
+            self.update()
+
+    def remove_edge(self, edge):
+        """从socket的连接列表中移除edge"""
+        if edge in self.edges:
+            self.edges.remove(edge)
+            self.update()
