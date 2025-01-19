@@ -58,7 +58,7 @@ class LineEditBox(Box, QLineEdit):
 class ImageBox(Box, QLabel):
     def __init__(self, socket):
         super().__init__(socket=socket)
-        self.height = self.socket.basic_height * 5
+        self.height = self.socket.node.width - self.socket.node.title_height
         self.value = None
         self.pixmap = None
         

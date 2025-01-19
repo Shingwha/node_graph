@@ -29,7 +29,7 @@ class Node(QGraphicsItem):
         self._height = self.title_height + self.content_height
         self.width = 120
         self.edge_size = 3
-        self.spacing = 0.07*self.width
+        self.spacing = 7
         self.type = type
         self.initColor()
 
@@ -163,6 +163,7 @@ class Node(QGraphicsItem):
         # 重置高度
         self.inputs_height = 0
         self.outputs_height = 0
+        
         
         # 更新所有sockets
         for socket in self.output_sockets + self.input_sockets:

@@ -21,7 +21,7 @@ class ImageOutputNode(Node):
             title="Image Output",
             type=2002,
             input_sockets=[{"datatype": 1, "box_type": 2}],
-            output_sockets=[]
+            output_sockets=[],
         )
     
 

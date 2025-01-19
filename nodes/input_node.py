@@ -24,7 +24,6 @@ class ImageInputNode(Node):
                 {"datatype": 1, "box_type": 2}
                 ],
         )
-        self.height = 110
 
     def run(self):
         for socket in self.output_sockets:
