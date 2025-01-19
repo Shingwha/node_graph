@@ -16,10 +16,11 @@ class SumNode(Node):
     def run(self):
         """计算所有输入值的和"""
         try:
-            self.output_sockets[0].value = sum(
-                getattr(socket, 'value', 0)
-                for socket in self.input_sockets
-            )
+            # 计算前统一处理None值
+            for socket in self.input_sockets:
+                if socket.value is None:
+                    socket.value = 0
+            self.output_sockets[0].value = sum(socket.value for socket in self.input_sockets)
         except ValueError as e:
             logging.error(f"SumNode calculation error: {e}")
             self.output_sockets[0].value = None
@@ -39,8 +40,12 @@ class SubtractNode(Node):
     def run(self):
         """计算两个输入值的差"""
         try:
-            a = getattr(self.input_sockets[0], 'value', 0)
-            b = getattr(self.input_sockets[1], 'value', 0)
+            # 计算前统一处理None值
+            for socket in self.input_sockets:
+                if socket.value is None:
+                    socket.value = 0
+            a = self.input_sockets[0].value
+            b = self.input_sockets[1].value
             self.output_sockets[0].value = a - b
         except ValueError as e:
             logging.error(f"SubtractNode calculation error: {e}")
@@ -61,8 +66,12 @@ class MultiplyNode(Node):
     def run(self):
         """计算两个输入值的乘积"""
         try:
-            a = getattr(self.input_sockets[0], 'value', 1)
-            b = getattr(self.input_sockets[1], 'value', 1)
+            # 计算前统一处理None值
+            for socket in self.input_sockets:
+                if socket.value is None:
+                    socket.value = 0
+            a = self.input_sockets[0].value
+            b = self.input_sockets[1].value
             self.output_sockets[0].value = a * b
         except ValueError as e:
             logging.error(f"MultiplyNode calculation error: {e}")
@@ -83,8 +92,12 @@ class DivideNode(Node):
     def run(self):
         """计算两个输入值的商"""
         try:
-            a = getattr(self.input_sockets[0], 'value', 0)
-            b = getattr(self.input_sockets[1], 'value', 1)
+            # 计算前统一处理None值
+            for socket in self.input_sockets:
+                if socket.value is None:
+                    socket.value = 0
+            a = self.input_sockets[0].value
+            b = self.input_sockets[1].value
             self.output_sockets[0].value = a / b if b != 0 else None
         except ValueError as e:
             logging.error(f"DivideNode calculation error: {e}")
@@ -105,8 +118,12 @@ class PowerNode(Node):
     def run(self):
         """计算幂运算"""
         try:
-            base = getattr(self.input_sockets[0], 'value', 0)
-            exponent = getattr(self.input_sockets[1], 'value', 1)
+            # 计算前统一处理None值
+            for socket in self.input_sockets:
+                if socket.value is None:
+                    socket.value = 0
+            base = self.input_sockets[0].value
+            exponent = self.input_sockets[1].value
             self.output_sockets[0].value = base ** exponent
         except ValueError as e:
             logging.error(f"PowerNode calculation error: {e}")
@@ -124,7 +141,10 @@ class SqrtNode(Node):
     def run(self):
         """计算平方根"""
         try:
-            value = getattr(self.input_sockets[0], 'value', 0)
+            # 计算前统一处理None值
+            if self.input_sockets[0].value is None:
+                self.input_sockets[0].value = 0
+            value = self.input_sockets[0].value
             self.output_sockets[0].value = value ** 0.5 if value >= 0 else None
         except ValueError as e:
             logging.error(f"SqrtNode calculation error: {e}")
