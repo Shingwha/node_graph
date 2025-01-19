@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (QLineEdit, QGraphicsProxyWidget, QWidget,
                               QLabel, QSlider, QFileDialog, QStyle, QStyleOptionSlider, QMenu,
-                              QDialog, QVBoxLayout)
+                              QDialog, QVBoxLayout, QPushButton)
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
@@ -62,30 +62,8 @@ class ImageBox(Box, QLabel):
         self.value = None
         self.pixmap = None
         
-        # 初始化右键菜单
-        self.menu = QMenu(self)
-        self.menu.setStyleSheet("""
-            QMenu {
-                background-color: #2D2D30;
-                color: #DCDCDC;
-                border-radius: 4px;
-                padding: 4px;
-                margin: 2px;
-            }
-            QMenu::item {
-                padding: 4px 8px;
-            }
-            QMenu::item:selected {
-                background-color: #3E3E40;
-                border-radius: 2px;
-            }
-        """)
-        delete_action = self.menu.addAction("删除图片")
-        delete_action.triggered.connect(self.delete_image)
-        save_action = self.menu.addAction("保存图片") 
-        save_action.triggered.connect(self.save_image)
-        view_action = self.menu.addAction("查看大图")
-        view_action.triggered.connect(self.view_large_image)
+        # 延迟初始化对话框
+        self.dialog = None
         
         self.update_display()
         self.setMouseTracking(True)
@@ -131,14 +109,59 @@ class ImageBox(Box, QLabel):
         return self.value if isinstance(self.value, QImage) else None
         
     def show_context_menu(self, pos):
-        self.menu.exec_(self.mapToGlobal(pos))
+        if self.dialog is None:
+            # 延迟初始化对话框
+            self.dialog = QDialog(self.socket.node.scene().views()[0])
+            self.dialog.setWindowTitle("图片操作")
+            self.dialog.setWindowFlags(Qt.Popup | Qt.NoDropShadowWindowHint)
+            self.dialog.setStyleSheet("""
+                QDialog {
+                    background-color: #2D2D30;
+                    border: 1px solid #3F3F46;
+                    padding: 5px;
+                    border-radius: 7px;
+                }
+                QPushButton {
+                    color: #DCDCDC;
+                    padding: 5px;
+                    border-radius: 4px;
+                }
+                QPushButton:hover {
+                    background-color: #3E3E40;
+                }
+            """)
+            
+            # 创建布局和按钮
+            layout = QVBoxLayout()
+            
+            delete_btn = QPushButton("删除图片")
+            delete_btn.clicked.connect(lambda: [self.delete_image(), self.dialog.close()])
+            layout.addWidget(delete_btn)
+            
+            save_btn = QPushButton("保存图片")
+            save_btn.clicked.connect(lambda: [self.save_image(), self.dialog.close()])
+            layout.addWidget(save_btn)
+            
+            view_btn = QPushButton("查看大图")
+            view_btn.clicked.connect(lambda: [self.view_large_image(), self.dialog.close()])
+            layout.addWidget(view_btn)
+            
+            self.dialog.setLayout(layout)
+        
+        global_pos = self.mapToGlobal(pos)
+        # 调整对话框位置
+        self.dialog.move(global_pos)
+        self.dialog.exec_()
         
     def delete_image(self):
         self.value = None
         self.socket.value = None
         self.pixmap = None
+        # 设置标志位避免重复触发
+        self.blockSignals(True)
         self.update_display()
         self.socket.node.update_display()
+        self.blockSignals(False)
         
     def view_large_image(self):
         """在新窗口中查看大图"""
