@@ -11,10 +11,14 @@ class Edge(QGraphicsPathItem):
         super().__init__()
         self.start_socket = start_socket
         self.end_socket = end_socket
-        self.start_socket.edges.append(self)
+        # 初始化input_socket和output_socket为None
+        self.input_socket = None
+        self.output_socket = None
+        if self.start_socket is not None:
+            self.start_socket.edges.append(self)
         if self.end_socket is not None:
             self.end_socket.edges.append(self)
-        self.initEdge()
+        self.initEdge()  # 初始化插座关系
         self.pen = QPen(self.start_socket.background_color, 2)
         self.pen_selected = QPen(QColor("#F2E383"), 2)
         self.setPen(self.pen)
@@ -23,12 +27,14 @@ class Edge(QGraphicsPathItem):
         self.setFlag(QGraphicsItem.ItemIsSelectable)
 
     def initEdge(self):
+        self.input_socket = None
+        self.output_socket = None
         if self.start_socket is None or self.end_socket is None:
             return
-        if self.start_socket.type == 1:
+        if self.start_socket.type == 1:  # 输出插座
             self.input_socket = self.end_socket
             self.output_socket = self.start_socket
-        else:
+        else:  # 输入插座
             self.input_socket = self.start_socket
             self.output_socket = self.end_socket
 

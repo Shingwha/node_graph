@@ -76,13 +76,13 @@ class Scene(QGraphicsScene):
         self.addItem(node)
 
     def add_edge(self, edge):
-        if edge not in self.edges:
-            self.edges.append(edge)
-            self.addItem(edge)
-            # 确保边被添加到Socket的edges列表中
-            if edge.start_socket and edge not in edge.start_socket.edges:
+        # 仅在边两端插座都存在时添加
+        if edge.start_socket is not None and edge.end_socket is not None:
+            if edge not in self.edges:
+                self.edges.append(edge)
+                self.addItem(edge)
+                # 确保边被正确关联到插座
                 edge.start_socket.edges.append(edge)
-            if edge.end_socket and edge not in edge.end_socket.edges:
                 edge.end_socket.edges.append(edge)
 
     def remove_node(self, node):

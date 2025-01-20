@@ -131,9 +131,9 @@ class View(QGraphicsView):
     def mouseMoveEvent(self, event):
         if self.mode == MODE_EDGE_DRAG:
             if not self.drag_edge:
-                # 创建临时连线，不加入撤销栈
+                # 创建临时连线，不加入场景的edges列表
                 self.drag_edge = Edge(self.drag_start_socket, None)
-                self.scene().add_edge(self.drag_edge)
+                self.scene().addItem(self.drag_edge)  # 直接添加为图形项，而非通过add_edge
             end_pos = self.mapToScene(event.pos())
             self.drag_edge.end_socket = None
             self.drag_edge.update_path(end_pos)
