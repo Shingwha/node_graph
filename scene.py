@@ -76,22 +76,31 @@ class Scene(QGraphicsScene):
         self.addItem(node)
 
     def add_edge(self, edge):
-        self.edges.append(edge)
-        self.addItem(edge)
+        if edge not in self.edges:
+            self.edges.append(edge)
+            self.addItem(edge)
+            # 确保边被添加到Socket的edges列表中
+            if edge.start_socket and edge not in edge.start_socket.edges:
+                edge.start_socket.edges.append(edge)
+            if edge.end_socket and edge not in edge.end_socket.edges:
+                edge.end_socket.edges.append(edge)
 
     def remove_node(self, node):
-        self.nodes.remove(node)
-        for socket in node.input_sockets + node.output_sockets:
-            for edge in socket.edges:
-                self.remove_edge(edge)
-        self.removeItem(node)
+        if node in self.nodes:
+            self.nodes.remove(node)
+            # 断开所有关联的边
+            for socket in node.input_sockets + node.output_sockets:
+                for edge in socket.edges.copy():  # 使用copy避免遍历时修改
+                    self.remove_edge(edge)
+            self.removeItem(node)
 
     def remove_edge(self, edge):
         if edge in self.edges:
             self.edges.remove(edge)
-        if edge.start_socket and edge in edge.start_socket.edges:
-            edge.start_socket.edges.remove(edge)
-        if edge.end_socket and edge in edge.end_socket.edges:
-            edge.end_socket.edges.remove(edge)
-        if edge.scene():
-            self.removeItem(edge)
+            # 清理socket引用
+            if edge.start_socket and edge in edge.start_socket.edges:
+                edge.start_socket.edges.remove(edge)
+            if edge.end_socket and edge in edge.end_socket.edges:
+                edge.end_socket.edges.remove(edge)
+            if edge in self.items():  # 更严格的场景检查
+                self.removeItem(edge)

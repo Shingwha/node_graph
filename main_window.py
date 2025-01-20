@@ -1,6 +1,6 @@
 # main_window.py
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QUndoStack, QAction
 from scene import Scene
 from node_factory import NodeFactory
 from view import View
@@ -10,6 +10,7 @@ from scene_serializer import save_scene_to_file, load_scene_from_file
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.undo_stack = QUndoStack(self)
         self.initUI()
 
     def initUI(self):
@@ -32,7 +33,7 @@ class MainWindow(QMainWindow):
         # 创建scene
         self.scene = Scene(self, self.node_factory)
         # 创建view
-        self.view = View(self.scene)
+        self.view = View(self.scene, self.undo_stack)
         self.layout.addWidget(self.view)
         self.show()
 
@@ -52,6 +53,17 @@ class MainWindow(QMainWindow):
         export_action = QAction('导出', self)
         export_action.triggered.connect(self.export_scene)
         file_menu.addAction(export_action)
+
+        # 编辑菜单
+        edit_menu = menubar.addMenu('编辑')
+        
+        undo_action = QAction('撤销', self)
+        undo_action.triggered.connect(self.undo_stack.undo)
+        edit_menu.addAction(undo_action)
+        
+        redo_action = QAction('重做', self)
+        redo_action.triggered.connect(self.undo_stack.redo)
+        edit_menu.addAction(redo_action)
 
     def import_scene(self):
         """导入场景"""

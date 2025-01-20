@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import QGraphicsView, QMenu
-from PySide6.QtGui import QPainter, QMouseEvent
-from PySide6.QtCore import Qt
+from PySide6.QtGui import QPainter, QMouseEvent, QCursor
+from PySide6.QtCore import Qt, QPointF
 from node_socket import Socket
 from edge import Edge
 from node import Node
 from graph import Graph
 from node_factory import NodeFactory
+from commands import AddNodeCommand, AddEdgeCommand, RemoveNodeCommand, RemoveEdgeCommand,PasteCommand
 
 MODE_NOOP = 1
 MODE_EDGE_DRAG = 2
@@ -14,8 +15,10 @@ EDGE_DRAG_START_THRESHOLD = 10
 
 
 class View(QGraphicsView):
-    def __init__(self, scene):
+    def __init__(self, scene, undo_stack):
         super().__init__(scene)
+        self.undo_stack = undo_stack  # 新增
+        self.clipboard = None
         self.initUI()
         # scale
         self.zoom_in_factor = 1.25
@@ -128,8 +131,9 @@ class View(QGraphicsView):
     def mouseMoveEvent(self, event):
         if self.mode == MODE_EDGE_DRAG:
             if not self.drag_edge:
+                # 创建临时连线，不加入撤销栈
                 self.drag_edge = Edge(self.drag_start_socket, None)
-                self.scene().addItem(self.drag_edge)
+                self.scene().add_edge(self.drag_edge)
             end_pos = self.mapToScene(event.pos())
             self.drag_edge.end_socket = None
             self.drag_edge.update_path(end_pos)
@@ -147,15 +151,15 @@ class View(QGraphicsView):
     def create_edge(self, start_socket, end_socket):
         # 如果end_socket是input且已有连接，先移除旧连接
         if end_socket.type == 0 and end_socket.edges:
-            for edge in end_socket.edges[:]:  # 使用切片创建副本以避免修改正在迭代的列表
+            for edge in end_socket.edges[:]:
                 self.scene().remove_edge(edge)
         # 如果start_socket是input且已有连接，先移除旧连接
         if start_socket.type == 0 and start_socket.edges:
-            for edge in start_socket.edges[:]:  # 使用切片创建副本以避免修改正在迭代的列表
+            for edge in start_socket.edges[:]:
                 self.scene().remove_edge(edge)
         # 创建新连接
-        edge = Edge(start_socket, end_socket)
-        self.scene().add_edge(edge)  # 将边添加到scene的edges列表中
+        cmd = AddEdgeCommand(self.scene(), start_socket, end_socket)
+        self.undo_stack.push(cmd)
         start_socket.update()
         end_socket.update()
 
@@ -186,13 +190,7 @@ class View(QGraphicsView):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
-            # 删除所有选中的items
-            for item in self.scene().selectedItems():
-                if isinstance(item, Node):
-                    self.scene().remove_node(item)
-                elif isinstance(item, Edge):
-                    self.scene().remove_edge(item)
-                    
+            self.delete_selected()
             event.accept()
         elif event.key() == Qt.Key_S:
             self.start_graph()
@@ -200,9 +198,115 @@ class View(QGraphicsView):
         elif event.key() == Qt.Key_P:
             self.stop_graph()
             event.accept()
+        elif event.modifiers() & Qt.ControlModifier:
+            if event.key() == Qt.Key_C:
+                self.copy_selected()
+                event.accept()
+            elif event.key() == Qt.Key_V:
+                self.paste()
+                event.accept()
+            elif event.key() == Qt.Key_Z:
+                self.undo_stack.undo()
+                event.accept()
+            elif event.key() == Qt.Key_Y:
+                self.undo_stack.redo()
+                event.accept()
         else:
             super().keyPressEvent(event)
             
+    def delete_selected(self):
+        selected_items = self.scene().selectedItems()
+        if not selected_items:
+            return
+        
+        self.undo_stack.beginMacro("Delete Selected Items")
+        for item in selected_items:
+            if isinstance(item, Node):
+                cmd = RemoveNodeCommand(self.scene(), item)
+                self.undo_stack.push(cmd)
+            elif isinstance(item, Edge):
+                cmd = RemoveEdgeCommand(self.scene(), item)
+                self.undo_stack.push(cmd)
+        self.undo_stack.endMacro()
+
+    def copy_selected(self):
+        selected_nodes = [item for item in self.scene().selectedItems() if isinstance(item, Node)]
+        if not selected_nodes:
+            return
+        
+        clipboard_data = {
+            'nodes': [],
+            'edges': [],
+            'center': None  # 新增中心点存储
+        }
+        
+        # 计算选中节点的中心点
+        sum_x = sum(node.scenePos().x() for node in selected_nodes)
+        sum_y = sum(node.scenePos().y() for node in selected_nodes)
+        center = QPointF(sum_x / len(selected_nodes), sum_y / len(selected_nodes))
+        clipboard_data['center'] = {'x': center.x(), 'y': center.y()}
+        
+        node_indices = {node: idx for idx, node in enumerate(selected_nodes)}
+        
+        # Serialize nodes
+        for node in selected_nodes:
+            node_data = {
+                'type': node.type,
+                'position': {'x': node.scenePos().x(), 'y': node.scenePos().y()},
+                'sockets': self._serialize_node_sockets(node)
+            }
+            clipboard_data['nodes'].append(node_data)
+        
+        # Serialize edges
+        for edge in self.scene().edges:
+            # 关键修复：检查 socket 是否存在且节点在选中列表中
+            if (
+                edge.start_socket is not None
+                and edge.end_socket is not None
+                and edge.start_socket.node in node_indices
+                and edge.end_socket.node in node_indices
+            ):
+                edge_data = {
+                    'from_node_index': node_indices[edge.start_socket.node],
+                    'from_socket_index': edge.start_socket.index,
+                    'to_node_index': node_indices[edge.end_socket.node],
+                    'to_socket_index': edge.end_socket.index
+                }
+                clipboard_data['edges'].append(edge_data)
+        
+        self.clipboard = clipboard_data
+
+    def paste(self):
+        if not self.clipboard:
+            return
+        
+        # 获取鼠标当前位置（场景坐标）
+        mouse_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
+        
+        # 计算偏移量：鼠标位置 - 原中心点
+        if 'center' in self.clipboard and self.clipboard['center'] is not None:
+            original_center = QPointF(self.clipboard['center']['x'], self.clipboard['center']['y'])
+            offset = mouse_pos - original_center
+        else:
+            offset = QPointF(20, 20)  # 默认偏移
+        
+        cmd = PasteCommand(self.scene(), self.clipboard, offset)
+        self.undo_stack.push(cmd)
+
+    def _serialize_node_sockets(self, node):
+        sockets_data = []
+        for socket in node.input_sockets + node.output_sockets:
+            socket_data = {
+                'index': socket.index,
+                'type': socket.type,
+                'box_type': socket.box_type,
+            }
+            # 不保存ImageBox的图片数据和值
+            if socket.box_type != 2:  # 2代表ImageBox
+                socket_data['value'] = socket.value
+            sockets_data.append(socket_data)
+        return sockets_data
+
     def start_graph(self):
         if hasattr(self, 'graph') and self.graph is not None:
             self.graph.reset()
@@ -311,8 +415,7 @@ class View(QGraphicsView):
     def create_node(self, node_type, pos):
         """根据节点类型创建节点"""
         try:
-            node = self.node_factory.create_node(node_type)
-            node.setPos(pos)
-            self.scene().add_node(node)
+            cmd = AddNodeCommand(self.scene(), node_type, pos)
+            self.undo_stack.push(cmd)
         except ValueError as e:
             print(f"创建节点失败: {e}")
