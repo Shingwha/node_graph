@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QGraphicsView, QMenu
+from styles import Styles
 from PySide6.QtGui import QPainter, QMouseEvent, QCursor,QAction
 from PySide6.QtCore import Qt, QPointF
 from node_socket import Socket
@@ -438,34 +439,7 @@ class View(QGraphicsView):
 
     def setup_menu_style(self):
         """设置菜单样式"""
-        self.menu_style = """
-            QMenu {
-                background-color: #2D2D30;
-                border: 1px solid #3F3F46;
-                padding: 5px;
-                border-radius: 7px;
-            }
-            QMenu::item {
-                color: #DCDCDC;
-                padding-left: 7px;
-                padding-right: 15px;
-                padding-top: 8px;
-                padding-bottom: 8px;
-                
-                border-radius: 4px;
-            }
-            QMenu::item:selected {
-                background-color: #3E3E40;
-            }
-            QMenu::item:disabled {
-                color: #808080;
-            }
-            QMenu::separator {
-                height: 1px;
-                background: #3F3F46;
-                margin: 5px 0;
-            }
-        """
+        self.menu_style = Styles.general_menu()
 
 
     def create_node(self, node_type, pos):

@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import (QLineEdit, QGraphicsProxyWidget, QWidget,
                               QLabel, QSlider, QFileDialog, QStyle, QStyleOptionSlider, QMenu,
-                              QDialog, QVBoxLayout, QPushButton)
-from PySide6.QtCore import QTimer
-from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage
+                              QVBoxLayout, QPushButton,QHBoxLayout)
+from PySide6.QtCore import QTimer,QEvent, QPoint,QPropertyAnimation
+from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage, QCursor, QAction
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
-
+from styles import Styles
 class Box():
     def __init__(self, socket):
         super().__init__()
@@ -24,7 +24,7 @@ class Box():
         self.update_position()
         self.setFixedHeight(self.height)
         self.setFixedWidth(self.width)
-        self.setStyleSheet("border: none; background-color: rgba(70, 70, 70, 0.4); color: white;")
+        self.setStyleSheet(Styles.box())
 
     def update_position(self):
         self.position_x = self.socket.node.spacing
@@ -58,23 +58,16 @@ class LineEditBox(Box, QLineEdit):
 class ImageBox(Box, QLabel):
     def __init__(self, socket):
         super().__init__(socket=socket)
-        self.height = self.socket.node.width - self.socket.node.title_height
-        self.value = None
-        self.pixmap = None
-        
-        # 延迟初始化对话框
-        self.dialog = None
-        
-        self.update_display()
-        self.setMouseTracking(True)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_context_menu)
 
     def mousePressEvent(self, event):
-        if self.pixmap is None:
-            self.select_image()
-            event.accept()
+        if event.button() == Qt.LeftButton:
+            if self.pixmap is None:
+                self.select_image()
+                event.accept()
+            else:
+                super().mousePressEvent(event)
         else:
+            # 将其他按钮事件传递给父类
             super().mousePressEvent(event)
         self.socket.node.update_display()
 
@@ -102,56 +95,12 @@ class ImageBox(Box, QLabel):
             
         else:
             self.setText("点击选择图片")
-            self.setStyleSheet("border: none; background-color: rgba(70, 70, 70, 0.4); color: white;")
-            self.setAlignment(Qt.AlignCenter)
+            self.setStyleSheet(Styles.image_label_placeholder() + """
+                qproperty-alignment: 'AlignCenter';
+            """)
 
     def get_value(self):
         return self.value if isinstance(self.value, QImage) else None
-        
-    def show_context_menu(self, pos):
-        if self.dialog is None:
-            # 延迟初始化对话框
-            self.dialog = QDialog(self.socket.node.scene().views()[0])
-            self.dialog.setWindowTitle("图片操作")
-            self.dialog.setWindowFlags(Qt.Popup | Qt.NoDropShadowWindowHint)
-            self.dialog.setStyleSheet("""
-                QDialog {
-                    background-color: #2D2D30;
-                    border: 1px solid #3F3F46;
-                    padding: 5px;
-                    border-radius: 7px;
-                }
-                QPushButton {
-                    color: #DCDCDC;
-                    padding: 5px;
-                    border-radius: 4px;
-                }
-                QPushButton:hover {
-                    background-color: #3E3E40;
-                }
-            """)
-            
-            # 创建布局和按钮
-            layout = QVBoxLayout()
-            
-            delete_btn = QPushButton("删除图片")
-            delete_btn.clicked.connect(lambda: [self.delete_image(), self.dialog.close()])
-            layout.addWidget(delete_btn)
-            
-            save_btn = QPushButton("保存图片")
-            save_btn.clicked.connect(lambda: [self.save_image(), self.dialog.close()])
-            layout.addWidget(save_btn)
-            
-            view_btn = QPushButton("查看大图")
-            view_btn.clicked.connect(lambda: [self.view_large_image(), self.dialog.close()])
-            layout.addWidget(view_btn)
-            
-            self.dialog.setLayout(layout)
-        
-        global_pos = self.mapToGlobal(pos)
-        # 调整对话框位置
-        self.dialog.move(global_pos)
-        self.dialog.exec_()
         
     def delete_image(self):
         self.value = None
@@ -235,25 +184,7 @@ class SliderBox(Box, QSlider):
     def initUI(self):
         super().initUI()
         
-        self.setStyleSheet("""
-            QSlider {
-                background: rgba(70, 70, 70, 0.4);
-                height: 4px;
-                border-radius: 2px;
-            }
-            QSlider::groove:horizontal {
-                background: rgba(200, 200, 200, 0.2);
-                height: 4px;
-                border-radius: 2px;
-            }
-            QSlider::handle:horizontal {
-                background: white;
-                width: 12px;
-                height: 12px;
-                margin: -4px 0;
-                border-radius: 6px;
-            }
-        """)
+        self.setStyleSheet(Styles.slider())
         
 
     def update_display(self):
