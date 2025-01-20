@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (QLineEdit, QGraphicsProxyWidget, QWidget,
                               QLabel, QSlider, QFileDialog, QStyle, QStyleOptionSlider, QMenu,
-                              QVBoxLayout, QPushButton,QDialog)
+                              QVBoxLayout, QPushButton,QDialog, QGraphicsView, QGraphicsScene, QApplication)
+from PySide6.QtGui import QPainter
 from PySide6.QtCore import QTimer,QEvent, QPoint,QPropertyAnimation
 from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage, QCursor, QAction
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
@@ -150,27 +151,39 @@ class ImageBox(Box, QLabel):
         self.blockSignals(False)
         
     def view_large_image(self):
-        """在新窗口中查看大图"""
+        """优化版大图查看器：支持平滑缩放和抗锯齿渲染"""
         if not isinstance(self.socket.value, QImage):
             print("错误：没有可用的图片数据")
             return
-            
-        # 创建新窗口
+
+        # 创建对话框和视图组件
         dialog = QDialog(self.socket.node.scene().views()[0])
-        dialog.setWindowTitle("查看大图")
-        dialog.setMinimumSize(800, 600)
+        dialog.setWindowTitle("查看大图 (按 ESC 退出)")
         
-        # 创建布局和标签
-        layout = QVBoxLayout()
-        image_label = QLabel(dialog)
-        image_label.setPixmap(QPixmap.fromImage(self.socket.value))
-        image_label.setScaledContents(True)
+        # 使用 QGraphicsView 实现高级渲染
+        view = QGraphicsView()
+        scene = QGraphicsScene()
+        pixmap = QPixmap.fromImage(self.socket.value)
+        pixmap_item = scene.addPixmap(pixmap)
         
-        # 设置布局
-        layout.addWidget(image_label)
-        dialog.setLayout(layout)
+        # 配置渲染参数
+        view.setRenderHint(QPainter.Antialiasing)
+        view.setRenderHint(QPainter.SmoothPixmapTransform)
+        view.setScene(scene)
+        view.setDragMode(QGraphicsView.ScrollHandDrag)  # 支持拖拽查看
         
-        # 显示对话框
+        # 自适应初始尺寸
+        screen_geometry = QApplication.primaryScreen().availableGeometry()
+        dialog.resize(min(pixmap.width(), screen_geometry.width() - 100),
+                     min(pixmap.height(), screen_geometry.height() - 100))
+        
+        # 布局
+        layout = QVBoxLayout(dialog)
+        layout.addWidget(view)
+        
+        # 添加键盘交互 (ESC 关闭)
+        dialog.keyPressEvent = lambda e: dialog.close() if e.key() == Qt.Key_Escape else None
+        
         dialog.exec_()
 
     def save_image(self):
@@ -179,11 +192,15 @@ class ImageBox(Box, QLabel):
             print("错误：没有可用的图片数据")
             return False
             
+        # 生成默认文件名
+        from datetime import datetime
+        default_name = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
         # 获取保存路径
         file_name, selected_filter = QFileDialog.getSaveFileName(
             self.socket.node.scene().views()[0],
             "保存图片",
-            "",
+            default_name,
             "JPEG 图片 (*.jpg);;PNG 图片 (*.png);;BMP 图片 (*.bmp)"
         )
         
