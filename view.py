@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QGraphicsView, QMenu
-from PySide6.QtGui import QPainter, QMouseEvent, QCursor
+from PySide6.QtGui import QPainter, QMouseEvent, QCursor,QAction
 from PySide6.QtCore import Qt, QPointF
 from node_socket import Socket
 from edge import Edge
@@ -164,9 +164,118 @@ class View(QGraphicsView):
         end_socket.update()
 
     def RightButtonPress(self, event):
-        # 右键点击时显示节点创建菜单
-        self.create_nodes_menu(event)
+        """处理右键点击事件，显示对应的上下文菜单"""
+        item = self.itemAt(event.pos())
+        if isinstance(item, Node):
+            self.show_node_context_menu(event)
+        elif isinstance(item, Edge):
+            self.show_edge_context_menu(event)
+        else:
+            self.show_background_context_menu(event)
         return super().mousePressEvent(event)
+
+    def show_background_context_menu(self, event):
+        """显示空白处的上下文菜单（添加节点 + 编辑操作）"""
+        menu = QMenu(self)
+        menu.setStyleSheet(self.menu_style)
+        
+        # 添加节点菜单
+        node_menu = menu.addMenu("添加节点")
+        pos = self.mapToScene(event.pos())
+        self.populate_node_menu(node_menu, pos)
+        
+        menu.addSeparator()  # 分隔线
+        
+        # 复制粘贴删除操作
+        self.add_edit_actions_to_menu(menu)
+        
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    def show_node_context_menu(self, event):
+        """显示节点的上下文菜单（复制/粘贴/删除）"""
+        item = self.itemAt(event.pos())
+        if not isinstance(item, Node):
+            return
+        
+        # 确保只选中当前节点
+        self.scene().clearSelection()
+        item.setSelected(True)
+        
+        menu = QMenu(self)
+        menu.setStyleSheet(self.menu_style)
+        self.add_edit_actions_to_menu(menu)
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    def show_edge_context_menu(self, event):
+        """显示边的上下文菜单（删除）"""
+        item = self.itemAt(event.pos())
+        if not isinstance(item, Edge):
+            return
+        
+        # 确保只选中当前边
+        self.scene().clearSelection()
+        item.setSelected(True)
+        
+        menu = QMenu(self)
+        menu.setStyleSheet(self.menu_style)
+        
+        delete_action = QAction("删除\tDel", self)
+        delete_action.triggered.connect(self.delete_selected)
+        menu.addAction(delete_action)
+        
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    def populate_node_menu(self, parent_menu, position):
+        """填充节点类型菜单"""
+        groups = {
+            "输入节点": [],
+            "输出节点": [],
+            "计算节点": [],
+            "图像处理节点": []
+        }
+        
+        # 分类节点类型
+        for type_id, node_class in self.node_factory.node_type_map.items():
+            if 1100 <= type_id < 1200:
+                groups["计算节点"].append((type_id, node_class))
+            elif 2100 <= type_id < 2200:
+                groups["图像处理节点"].append((type_id, node_class))
+            elif type_id % 100 == 1:
+                groups["输入节点"].append((type_id, node_class))
+            elif type_id % 100 == 2:
+                groups["输出节点"].append((type_id, node_class))
+        
+        # 添加子菜单
+        for group_name, nodes in groups.items():
+            if nodes:
+                sub_menu = parent_menu.addMenu(group_name)
+                for type_id, node_class in nodes:
+                    node_title = getattr(node_class, 'title', node_class.__name__)
+                    action = sub_menu.addAction(node_title)
+                    action.triggered.connect(
+                        lambda checked=False, t=type_id, p=position: 
+                            self.create_node(t, p)
+                    )
+
+    def add_edit_actions_to_menu(self, menu):
+        """为菜单添加编辑操作（复制/粘贴/删除）"""
+        # 复制
+        copy_action = QAction("复制\tCtrl+C", self)
+        copy_action.triggered.connect(self.copy_selected)
+        copy_action.setEnabled(bool(self.scene().selectedItems()))
+        menu.addAction(copy_action)
+        
+        # 粘贴
+        paste_action = QAction("粘贴\tCtrl+V", self)
+        paste_action.triggered.connect(self.paste)
+        paste_action.setEnabled(bool(self.clipboard))
+        menu.addAction(paste_action)
+        
+        # 删除
+        delete_action = QAction("删除\tDel", self)
+        delete_action.triggered.connect(self.delete_selected)
+        delete_action.setEnabled(bool(self.scene().selectedItems()))
+        menu.addAction(delete_action)
 
     def RightButtonRelease(self, event):
         return super().mouseReleaseEvent(event)
@@ -358,59 +467,6 @@ class View(QGraphicsView):
             }
         """
 
-    def create_nodes_menu(self, event):
-        item = self.itemAt(event.pos())
-        if item is None:
-            # 创建上下文菜单
-            menu = QMenu(self)
-            menu.setStyleSheet(self.menu_style)
-            
-            # 递归创建菜单项
-            def create_menu_items(menu, node_types):
-                # 按节点类型分组
-                groups = {
-                    "输入节点": [],
-                    "输出节点": [],
-                    "计算节点": [],
-                    "图像处理节点": []
-                }
-                
-                # 分类节点
-                for type_id, node_class in node_types.items():
-                    if 1100 <= type_id < 1200:
-                        groups["计算节点"].append((type_id, node_class))
-                    elif 2100 <= type_id < 2200:
-                        groups["图像处理节点"].append((type_id, node_class))
-                    # 余数为1为输入节点，2为输出节点
-                    elif type_id % 100 == 1:
-                        groups["输入节点"].append((type_id, node_class))
-                    elif type_id % 100 == 2:
-                        groups["输出节点"].append((type_id, node_class))
-                    
-                
-                # 创建分组菜单
-                for group_name, nodes in groups.items():
-                    if nodes:
-                        sub_menu = menu.addMenu(group_name)
-                        for type_id, node_class in nodes:
-                            # 使用节点类的title属性，如果没有则使用类名
-                            node_title = getattr(node_class, 'title', node_class.__name__)
-                            action = sub_menu.addAction(f"{node_title}")
-                            action.node_type = type_id
-            
-            # 创建主菜单
-            create_menu_items(menu, self.node_factory.node_type_map)
-            
-            # 显示菜单并获取选择
-            action = menu.exec_(self.mapToGlobal(event.pos()))
-            
-            if action:
-                # 获取点击位置
-                pos = self.mapToScene(event.pos())
-                # 根据选择创建节点
-                self.create_node(action.node_type, pos)
-        else:
-            return super().mousePressEvent(event)
 
     def create_node(self, node_type, pos):
         """根据节点类型创建节点"""
