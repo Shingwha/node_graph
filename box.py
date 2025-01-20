@@ -68,7 +68,9 @@ class ImageBox(Box, QLabel):
         if self.pixmap is None:
             return
             
-        menu = QMenu(self)
+        # 使用node的view作为父级
+        parent_widget = self.socket.node.scene().views()[0]
+        menu = QMenu(parent_widget)
         
         # 查看大图
         view_action = QAction("查看大图", self)
@@ -90,8 +92,9 @@ class ImageBox(Box, QLabel):
         # 应用菜单样式
         menu.setStyleSheet(Styles.general_menu())
         
-        # 显示菜单
-        menu.exec_(self.mapToGlobal(position))
+        # 调整显示位置为全局坐标
+        global_pos = self.mapToGlobal(position)
+        menu.exec_(global_pos)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
