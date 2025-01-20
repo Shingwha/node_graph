@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (QLineEdit, QGraphicsProxyWidget, QWidget,
                               QLabel, QSlider, QFileDialog, QStyle, QStyleOptionSlider, QMenu,
-                              QVBoxLayout, QPushButton,QHBoxLayout)
+                              QVBoxLayout, QPushButton,QDialog)
 from PySide6.QtCore import QTimer,QEvent, QPoint,QPropertyAnimation
 from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage, QCursor, QAction
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
@@ -58,6 +58,40 @@ class LineEditBox(Box, QLineEdit):
 class ImageBox(Box, QLabel):
     def __init__(self, socket):
         super().__init__(socket=socket)
+        self.height = self.socket.node.width - self.socket.node.title_height
+        self.value = None
+        self.pixmap = None
+
+
+    def show_context_menu(self, position):
+        """显示右键上下文菜单"""
+        if self.pixmap is None:
+            return
+            
+        menu = QMenu(self)
+        
+        # 查看大图
+        view_action = QAction("查看大图", self)
+        view_action.triggered.connect(self.view_large_image)
+        
+        # 保存图片
+        save_action = QAction("保存图片", self)
+        save_action.triggered.connect(self.save_image)
+        
+        # 删除图片
+        delete_action = QAction("删除图片", self)
+        delete_action.triggered.connect(self.delete_image)
+        
+        # 按操作顺序添加
+        menu.addAction(view_action)
+        menu.addAction(save_action)
+        menu.addAction(delete_action)
+        
+        # 应用菜单样式
+        menu.setStyleSheet(Styles.general_menu())
+        
+        # 显示菜单
+        menu.exec_(self.mapToGlobal(position))
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -67,8 +101,9 @@ class ImageBox(Box, QLabel):
             else:
                 super().mousePressEvent(event)
         else:
-            # 将其他按钮事件传递给父类
-            super().mousePressEvent(event)
+            event.accept() 
+        if event.button() == Qt.RightButton:
+            self.show_context_menu(event.pos())
         self.socket.node.update_display()
 
     def select_image(self):
@@ -95,9 +130,8 @@ class ImageBox(Box, QLabel):
             
         else:
             self.setText("点击选择图片")
-            self.setStyleSheet(Styles.image_label_placeholder() + """
-                qproperty-alignment: 'AlignCenter';
-            """)
+            self.setStyleSheet(Styles.image_label_placeholder())
+            self.setAlignment(Qt.AlignCenter)
 
     def get_value(self):
         return self.value if isinstance(self.value, QImage) else None

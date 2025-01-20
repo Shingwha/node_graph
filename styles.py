@@ -54,15 +54,6 @@ class Styles:
             }
         """
 
-    @classmethod
-    def image_box_hover(cls):
-        """图片框悬停样式"""
-        return """
-            QLabel:hover {
-                border: 1px solid #3F3F46;
-                background-color: rgba(70, 70, 70, 0.6);
-            }
-        """
 
     @classmethod
     def general_menu(cls):
@@ -102,5 +93,4 @@ class Styles:
             border: none; 
             background-color: rgba(70, 70, 70, 0.4); 
             color: white;
-            qproperty-alignment: AlignCenter;
         """
