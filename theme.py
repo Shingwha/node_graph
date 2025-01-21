@@ -10,6 +10,7 @@ class Color:
     NODE_DEFAULT = "#50B780"
     NODE_SELECTED = "#F2E383"
     NODE_TITLE = "#1F7D6B"
+    NODE_TITLE_FONT = "#FFFFFF"
     IMAGE_NODE = "#c36060"
     
     # 组件颜色
@@ -25,6 +26,11 @@ class Color:
     MENU_TEXT = "#DCDCDC"
     MENU_DISABLED_TEXT = "#808080"
 
+class Font:
+    """字体配置"""
+    NODE_TITLE = "Helvetica"
+    NODE_TITLE_SIZE = 8
+
 class Dimensions:
     """尺寸配置"""
     # 节点尺寸
@@ -32,6 +38,8 @@ class Dimensions:
     NODE_TITLE_HEIGHT = 20
     NODE_EDGE_RADIUS = 3
     NODE_PADDING = 5
+    NODE_SPACING = 7
+    NODE_OPACITY = 0.7
     
     # 组件尺寸
     SLIDER_HEIGHT = "4px"

@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QGraphicsItem,QGraphicsProxyWidget,QGraphicsTextIt
 from PySide6.QtCore import QRectF, Qt, QPointF, QRegularExpression
 from PySide6.QtGui import QBrush, QPen, QColor, QPainterPath, QFont,QRegularExpressionValidator
 from node_socket import Socket
+from theme import Font, Color
 INPUT = 0
 OUTPUT = 1
 
@@ -20,8 +21,9 @@ class Node(QGraphicsItem):
         self.opacity = 0.7  # 添加透明度参数，范围0-1
 
         self.title_height = 20
-        self.title_color = Qt.white
-        self.title_font = QFont("Helvetica", 8)
+
+        self.title_font_color = QColor(Color.NODE_TITLE_FONT)
+        self.title_font = QFont(Font.NODE_TITLE, Font.NODE_TITLE_SIZE)
         self.inputs_height = 0
         self.outputs_height = 0
         self.content_height = 0
@@ -55,12 +57,10 @@ class Node(QGraphicsItem):
     def initColor(self):
         """根据节点类型设置颜色"""
         if 2000 < self.type < 2199:  # 图像处理节点
-            from theme import Color
             self.pen_default = QPen(QColor(Color.IMAGE_NODE))
             self.pen_selected = QPen(QColor(Color.NODE_SELECTED))
             self.brush_title = QBrush(QColor(Color.IMAGE_NODE))
         else:  # 默认颜色
-            from theme import Color
             self.pen_default = QPen(QColor(Color.NODE_DEFAULT))
             self.pen_selected = QPen(QColor(Color.NODE_SELECTED))
             self.brush_title = QBrush(QColor(Color.NODE_TITLE))
@@ -75,7 +75,7 @@ class Node(QGraphicsItem):
 
     def initTitle(self):
         self.title_item = QGraphicsTextItem(self)
-        self.title_item.setDefaultTextColor(self.title_color)
+        self.title_item.setDefaultTextColor(self.title_font_color)
         self.title_item.setFont(self.title_font)
         self.title_item.setPos(self.padding,0)
         self.title_item.setTextWidth(self.width - 2*self.padding)
