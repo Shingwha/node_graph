@@ -19,9 +19,7 @@ class Node(QGraphicsItem):
         
         super().__init__()
         self.opacity = 0.7  # 添加透明度参数，范围0-1
-
         self.title_height = 20
-
         self.title_font_color = QColor(Color.NODE_TITLE_FONT)
         self.title_font = QFont(Font.NODE_TITLE, Font.NODE_TITLE_SIZE)
         self.inputs_height = 0
@@ -36,7 +34,6 @@ class Node(QGraphicsItem):
         self.initColor()
 
         self.title = title
-
 
         self.input_sockets = []
         self.output_sockets = []

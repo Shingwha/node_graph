@@ -20,7 +20,7 @@ class Color:
     SLIDER_GROOVE = "rgba(200, 200, 200, 0.2)"
     
     # 菜单颜色
-    MENU_BG = "#2D2D30"
+    MENU_BACKGROUND = "#2D2D30"
     MENU_BORDER = "#3F3F46"
     MENU_ITEM_HOVER = "#3E3E40"
     MENU_TEXT = "#DCDCDC"
@@ -86,7 +86,7 @@ class StyleSheets:
     def general_menu():
         return f"""
             QMenu {{
-                background-color: {Color.MENU_BG};
+                background-color: {Color.MENU_BACKGROUND};
                 border: 1px solid {Color.MENU_BORDER};
                 padding: 5px;
                 border-radius: 7px;
