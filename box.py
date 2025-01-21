@@ -5,7 +5,7 @@ from PySide6.QtGui import QPainter
 from PySide6.QtCore import QTimer,QEvent, QPoint,QPropertyAnimation
 from PySide6.QtGui import QRegularExpressionValidator, QPixmap, QImage, QCursor, QAction
 from PySide6.QtCore import QRegularExpression,QPointF, Qt
-from styles import Styles
+from theme import StyleSheets
 class Box():
     def __init__(self, socket):
         super().__init__()
@@ -25,7 +25,7 @@ class Box():
         self.update_position()
         self.setFixedHeight(self.height)
         self.setFixedWidth(self.width)
-        self.setStyleSheet(Styles.box())
+        self.setStyleSheet(StyleSheets.box())
 
     def update_position(self):
         self.position_x = self.socket.node.spacing
@@ -91,7 +91,7 @@ class ImageBox(Box, QLabel):
         menu.addAction(delete_action)
         
         # 应用菜单样式
-        menu.setStyleSheet(Styles.general_menu())
+        menu.setStyleSheet(StyleSheets.general_menu())
         
         # 调整显示位置为全局坐标
         global_pos = self.mapToGlobal(position)
@@ -134,7 +134,7 @@ class ImageBox(Box, QLabel):
             
         else:
             self.setText("点击选择图片")
-            self.setStyleSheet(Styles.image_label_placeholder())
+            self.setStyleSheet(StyleSheets.image_label_placeholder())
             self.setAlignment(Qt.AlignCenter)
 
     def get_value(self):
@@ -238,7 +238,7 @@ class SliderBox(Box, QSlider):
     def initUI(self):
         super().initUI()
         
-        self.setStyleSheet(Styles.slider())
+        self.setStyleSheet(StyleSheets.slider())
         
 
     def update_display(self):

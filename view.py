@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QGraphicsView, QMenu
-from styles import Styles
+from theme import StyleSheets
 from PySide6.QtGui import QPainter, QMouseEvent, QCursor,QAction
 from PySide6.QtCore import Qt, QPointF
 from node_socket import Socket
@@ -439,7 +439,8 @@ class View(QGraphicsView):
 
     def setup_menu_style(self):
         """设置菜单样式"""
-        self.menu_style = Styles.general_menu()
+        from theme import StyleSheets
+        self.menu_style = StyleSheets.general_menu()
 
 
     def create_node(self, node_type, pos):

@@ -9,13 +9,15 @@ class Scene(QGraphicsScene):
 
         self.scene = scene
         self.node_factory = node_factory
-        self.background_color = QColor('#212121')
-        self.grid_color = QColor('#313131')
-        self.grid_size = 30
+        from theme import Color
+        self.background_color = QColor(Color.BACKGROUND)
+        self.grid_color = QColor(Color.GRID)
+        from theme import Dimensions
+        self.grid_size = Dimensions.GRID_SIZE
         self.grid_pen = QPen(self.grid_color)
         self.grid_pen.setWidth(1)
-        self.chunk_color = QColor('#151515')
-        self.chunk_size = 5
+        self.chunk_color = QColor(Color.CHUNK)
+        self.chunk_size = Dimensions.GRID_CHUNK
         self.chunk_pen = QPen(self.chunk_color)
         self.chunk_pen.setWidth(2)
         self.setBackgroundBrush(QBrush(self.background_color))

@@ -55,15 +55,17 @@ class Node(QGraphicsItem):
     def initColor(self):
         """根据节点类型设置颜色"""
         if 2000 < self.type < 2199:  # 图像处理节点
-            self.pen_default = QPen(QColor("#cc6666"))
-            self.pen_selected = QPen(QColor("#F2E383"))
-            self.brush_title = QBrush(QColor("#c36060"))
+            from theme import Color
+            self.pen_default = QPen(QColor(Color.IMAGE_NODE))
+            self.pen_selected = QPen(QColor(Color.NODE_SELECTED))
+            self.brush_title = QBrush(QColor(Color.IMAGE_NODE))
         else:  # 默认颜色
-            self.pen_default = QPen(QColor("#50B780"))
-            self.pen_selected = QPen(QColor("#F2E383"))
-            self.brush_title = QBrush(QColor("#1F7D6B"))
+            from theme import Color
+            self.pen_default = QPen(QColor(Color.NODE_DEFAULT))
+            self.pen_selected = QPen(QColor(Color.NODE_SELECTED))
+            self.brush_title = QBrush(QColor(Color.NODE_TITLE))
         self.brush_title.color().setAlphaF(self.opacity)
-        self.brush_background = QBrush(QColor("#2a2a2a"))
+        self.brush_background = QBrush(QColor(Color.BACKGROUND))
         self.brush_background.color().setAlphaF(self.opacity)
 
     def initUI(self):
