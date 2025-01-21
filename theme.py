@@ -23,6 +23,7 @@ class Color:
     MENU_BORDER = "#3F3F46"
     MENU_ITEM_HOVER = "#3E3E40"
     MENU_TEXT = "#DCDCDC"
+    MENU_DISABLED_TEXT = "#808080"
 
 class Dimensions:
     """尺寸配置"""
@@ -93,14 +94,15 @@ class StyleSheets:
             QMenu::item:selected {{
                 background-color: {Color.MENU_ITEM_HOVER};
             }}
-            QMenu::item:disabled {
-                color: #808080;
-            }
-            QMenu::separator {
+            QMenu::item:disabled {{
+                color: {Color.MENU_DISABLED_TEXT};
+                opacity: 0.5;
+            }}
+            QMenu::separator {{
                 height: 1px;
-                background: #3F3F46;
+                background: {Color.MENU_BORDER};
                 margin: 5px 0;
-            }
+            }}
         """
     
 
